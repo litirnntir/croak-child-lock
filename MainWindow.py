@@ -1,5 +1,6 @@
 from PyQt6.QtGui import QPixmap, QPalette, QBrush
 from PyQt6.QtWidgets import QMainWindow
+from SystemFunctions import update_json
 
 
 class MainWindow(QMainWindow):

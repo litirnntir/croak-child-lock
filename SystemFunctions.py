@@ -1,20 +1,34 @@
+import base64
 import json
 
+from cryptography.fernet import Fernet
 
-def update_json(file: str, key: str, value: any) -> None:
-    """
-    Обновляет данные в JSON-файле по заданному ключу и значению.
+key = Fernet.generate_key()
+with open("key.key", "wb") as file:
+    file.write(key)
 
-    Параметры:
-    file: имя JSON-файла, который нужно обновить
-    key: ключ, по которому нужно обновить значение
-    value: новое значение, которое нужно записать по ключу
+with open("key.key", "rb") as file:
+    key = file.read()
 
-    Возвращает:
-    None
-    """
-    with open(file, "r") as f:
-        data = json.load(f)
-    data[key] = value
-    with open(file, "w") as f:
-        json.dump(data, f)
+fernet = Fernet(key)
+
+
+def encrypt_json(filename):
+    with open(filename, "rb") as file:
+        data = file.read()
+    encrypted_data = fernet.encrypt(data)
+    with open(filename, "wb") as file:
+        file.write(encrypted_data)
+
+
+def decrypt_json(filename):
+    with open(filename, "rb") as file:
+        encrypted_data = file.read()
+    decrypted_data = fernet.decrypt(encrypted_data)
+    return decrypted_data.decode("utf-8")
+
+
+encrypt_json("test.json")
+a = json.loads(decrypt_json("test.json"))
+with open("test.json", "w") as f:
+    json.dump(a, f)
