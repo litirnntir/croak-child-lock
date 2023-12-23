@@ -315,89 +315,96 @@ class MainWindow(QMainWindow):
 
     def update_data(self) -> None:
         """Главная функция обработки действий"""
-        # TODO: проверка на взлом файла
-        utc_time = time.gmtime()  # текущее время, не зависит от устройства
-        gmt4_time = time.gmtime(time.mktime(utc_time) + 8 * 3600)  # GMT+4
+        try:
+            # TODO: проверка на взлом файла
+            utc_time = time.gmtime()  # текущее время, не зависит от устройства
+            gmt4_time = time.gmtime(time.mktime(utc_time) + 8 * 3600)  # GMT+4
 
-        # В определенное время сброс статистики, времени и отправка в телеграм
-        if self.send_stats_time == time.strftime("%H:%M:%S", gmt4_time):
-            self.send_file_to_telegram("Статистика.xlsx")
-            update_json(resource_path("jsons/settings.json"), "total_time",
-                        24 * 60 * 60)  # обновляем на 24 часа в нужное время
-            reset_json(resource_path("jsons/stats_apps.json"))
-        # Меняем активное приложение
-        new_current_app = get_active_app_name()
-        self.text_active_app.setText(f"В {new_current_app}:")
+            # В определенное время сброс статистики, времени и отправка в телеграм
+            if self.send_stats_time == time.strftime("%H:%M:%S", gmt4_time):
+                self.send_file_to_telegram("Статистика.xlsx")
+                update_json(resource_path("jsons/settings.json"), "total_time",
+                            24 * 60 * 60)  # обновляем на 24 часа в нужное время
+                reset_json(resource_path("jsons/stats_apps.json"))
+            # Меняем активное приложение
+            new_current_app = get_active_app_name()
+            print(new_current_app)
+            print(get_from_json("jsons/blocked_apps.json"))
+            self.text_active_app.setText(f"В {new_current_app}:")
 
-        # Если время не вышло
-        if self.total_time > 0:
-            self.total_time -= 1
-            # Если приложение изменилось
-            if new_current_app != self.active_app:
-                # Если время в приложении больше нуля секунд
-                if self.time_spent > 0:
-                    self.stats_apps = get_from_json(resource_path("jsons/stats_apps.json"))
-                    # Записываем значение времени в предыдущем приложении
-                    if self.active_app in self.stats_apps:
-                        update_json(resource_path("jsons/stats_apps.json"), self.active_app,
-                                    self.stats_apps[self.active_app] + self.time_spent)
+            # Если время не вышло
+            if self.total_time > 0:
+                self.total_time -= 1
+                # Если приложение изменилось
+                if new_current_app != self.active_app:
+                    # Если время в приложении больше нуля секунд
+                    if self.time_spent > 0:
+                        self.stats_apps = get_from_json(resource_path("jsons/stats_apps.json"))
+                        # Записываем значение времени в предыдущем приложении
+                        if self.active_app in self.stats_apps:
+                            update_json(resource_path("jsons/stats_apps.json"), self.active_app,
+                                        self.stats_apps[self.active_app] + self.time_spent)
+                        else:
+                            update_json(resource_path("jsons/stats_apps.json"), self.active_app, self.time_spent)
+                    # Обнуляем время в текущем приложении
+                    self.time_spent = 0
+                    # Обновляем значение в файле, если предыдущее заблокировано
+                    if self.active_app in self.blocked_apps:
+                        update_json(resource_path("jsons/stats_apps.json"), self.active_app, self.time_left_block_app)
+                    # Обновляем текущее приложение
+                    self.active_app = new_current_app
+                    # Если текущее зблокировано, проверяем, осталось ли время. Если не осталось - закрываем
+                    if self.active_app in self.blocked_apps:
+                        if self.blocked_apps[self.active_app] <= 1:
+                            close_app(new_current_app)
+                            self.time_left_block_app = 0  # обнуляем время
+                            send_notification(
+                                f"Время {new_current_app} вышло. Вы больше не можете находиться в приложении")
+                        else:
+                            self.time_left_block_app = self.blocked_apps[new_current_app]
+                            self.time_left_block_app -= 1
                     else:
-                        update_json(resource_path("jsons/stats_apps.json"), self.active_app, self.time_spent)
-                # Обнуляем время в текущем приложении
-                self.time_spent = 0
-                # Обновляем значение в файле, если предыдущее заблокировано
-                if self.active_app in self.blocked_apps:
-                    update_json(resource_path("jsons/stats_apps.json"), self.active_app, self.time_left_block_app)
-                # Обновляем текущее приложение
-                self.active_app = new_current_app
-                # Если текущее зблокировано, проверяем, осталось ли время. Если не осталось - закрываем
-                if self.active_app in self.blocked_apps:
-                    if self.blocked_apps[self.active_app] <= 1:
-                        close_app(new_current_app)
-                        self.time_left_block_app = 0  # обнуляем время
-                        send_notification(f"Время {new_current_app} вышло. Вы больше не можете находиться в приложении")
-                    else:
-                        self.time_left_block_app = self.blocked_apps[new_current_app]
-                        self.time_left_block_app -= 1
+                        self.time_left_block_app = self.total_time
+                # Если текущее приложение не поменялось
                 else:
-                    self.time_left_block_app = self.total_time
-            # Если текущее приложение не поменялось
+                    self.time_spent += 1
+                    # Если заблокировано, проверяем время
+                    if new_current_app in self.blocked_apps:
+                        if self.time_left_block_app <= 1:
+                            close_app(new_current_app)
+                            self.time_left_block_app = 0
+                            send_notification(
+                                f"Время {new_current_app} вышло. Вы больше не можете находиться в приложении")
+                        else:
+                            self.time_left_block_app -= 1
+                    # Если не заблокировано - ставим общее время как оставшееся
+                    else:
+                        self.time_left_block_app = self.total_time
+
+                # Меняем время в интерфейсе
+                self.time_all_time.setText(time.strftime("%H:%M:%S", time.gmtime(self.total_time)))
+                self.time_active_app.setText(time.strftime("%H:%M:%S", time.gmtime(self.time_left_block_app)))
+
+                # Прогресс бар
+                if self.active_app in self.blocked_apps and self.time_left_block_app < self.total_time:
+                    if self.time_left_block_app > 1:
+                        self.progress_bar_active_app.setProperty("value", 100 * self.time_left_block_app /
+                                                                 self.blocked_apps_for_percents[self.active_app])
+                    else:
+                        self.progress_bar_active_app.setProperty("value", 0)
+                else:
+                    self.progress_bar_active_app.setProperty("value",
+                                                             100 * self.total_time / self.total_time_for_percents)
+                self.progress_bar_all_time.setProperty("value", 100 * self.total_time / self.total_time_for_percents)
+
             else:
-                self.time_spent += 1
-                # Если заблокировано, проверяем время
-                if new_current_app in self.blocked_apps:
-                    if self.time_left_block_app <= 1:
-                        close_app(new_current_app)
-                        self.time_left_block_app = 0
-                        send_notification(f"Время {new_current_app} вышло. Вы больше не можете находиться в приложении")
-                    else:
-                        self.time_left_block_app -= 1
-                # Если не заблокировано - ставим общее время как оставшееся
-                else:
-                    self.time_left_block_app = self.total_time
+                if new_current_app != "Python" and new_current_app != "pycharm" and new_current_app != "Croak - Child Lock":
+                    send_notification(f"Общее время вышло. Вы больше не можете зайти в {new_current_app}")
+                    close_app(new_current_app)
+                    apps_list = get_open_apps()
+                    for app in no_blocked_list:
+                        if app in apps_list: apps_list.remove(app)
+                    for application in apps_list:
+                        close_app(application)
 
-            # Меняем время в интерфейсе
-            self.time_all_time.setText(time.strftime("%H:%M:%S", time.gmtime(self.total_time)))
-            self.time_active_app.setText(time.strftime("%H:%M:%S", time.gmtime(self.time_left_block_app)))
-
-            # Прогресс бар
-            if self.active_app in self.blocked_apps and self.time_left_block_app < self.total_time:
-                if self.time_left_block_app > 1:
-                    self.progress_bar_active_app.setProperty("value", 100 * self.time_left_block_app /
-                                                             self.blocked_apps_for_percents[self.active_app])
-                else:
-                    self.progress_bar_active_app.setProperty("value", 0)
-            else:
-                self.progress_bar_active_app.setProperty("value",
-                                                         100 * self.total_time / self.total_time_for_percents)
-            self.progress_bar_all_time.setProperty("value", 100 * self.total_time / self.total_time_for_percents)
-
-        else:
-            if new_current_app != "Python" and new_current_app != "pycharm" and new_current_app != "Croak - Child Lock":
-                send_notification(f"Общее время вышло. Вы больше не можете зайти в {new_current_app}")
-                close_app(new_current_app)
-                apps_list = get_open_apps()
-                for app in no_blocked_list:
-                    if app in apps_list: apps_list.remove(app)
-                for application in apps_list:
-                    close_app(application)
+        except:pass
