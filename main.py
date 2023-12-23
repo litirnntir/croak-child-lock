@@ -3,6 +3,7 @@ import multiprocessing
 import sys
 
 import telebot
+from PyQt6 import QtGui
 from PyQt6.QtWidgets import QApplication
 
 from MainWindow import MainWindow
