@@ -328,8 +328,6 @@ class MainWindow(QMainWindow):
                 reset_json(resource_path("jsons/stats_apps.json"))
             # Меняем активное приложение
             new_current_app = get_active_app_name()
-            print(new_current_app)
-            print(get_from_json("jsons/blocked_apps.json"))
             self.text_active_app.setText(f"В {new_current_app}:")
 
             # Если время не вышло
