@@ -45,9 +45,19 @@ def update_json(filename: str, key: str, value: any) -> None:
     data = json.dumps(data)
     bytes_obj = data.encode('utf-8')
     encrypted_data = fernet.encrypt(bytes_obj)
-    print(data)
     with open(filename, "wb") as f:
         f.write(encrypted_data)
 
 
-update_json("test.json", "total", 10)
+def get_from_json(filename: str) -> dict:
+    """Дешифрует json файл и возвращает данные
+
+    :param filename: имя JSON-файла для чтения
+    """
+    return json.loads(decrypt_json(filename))
+
+
+# encrypt_json("jsons/blocked_apps.json")
+# encrypt_json("jsons/blocked_apps_for_percents.json")
+# encrypt_json("jsons/settings.json")
+# encrypt_json("jsons/stats_apps.json")
