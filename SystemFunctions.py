@@ -1,8 +1,21 @@
 import json
+import os
+import sys
 
 from cryptography.fernet import Fernet
 
-with open("key.key", "rb") as file:
+
+def resource_path(relative_path):
+    # Получаем абсолютный путь к ресурсам.
+    try:
+        # PyInstaller создает временную папку в _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+
+with open(resource_path("key.key"), "rb") as file:
     key = file.read()
 
 fernet = Fernet(key)
@@ -55,7 +68,6 @@ def get_from_json(filename: str) -> dict:
     :param filename: имя JSON-файла для чтения
     """
     return json.loads(decrypt_json(filename))
-
 
 # encrypt_json("jsons/blocked_apps.json")
 # encrypt_json("jsons/blocked_apps_for_percents.json")

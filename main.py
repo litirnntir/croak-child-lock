@@ -1,17 +1,23 @@
 import multiprocessing
+
 import sys
 
 import telebot
 from PyQt6.QtWidgets import QApplication
-from sett import TOKEN
 
 from MainWindow import MainWindow
+from SystemFunctions import get_from_json, resource_path
 
-bot = telebot.TeleBot(TOKEN)
+bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
 
 
 def run_bot():
     bot.polling()
+
+
+def stop_bot():
+    bot_process.terminate()
+    print("Бот остановлен")
 
 
 def run_window():
@@ -29,6 +35,7 @@ def start(message):
 if __name__ == '__main__':
     multiprocessing.freeze_support()
     time_process = multiprocessing.Process(target=run_window)
+    multiprocessing.freeze_support()
     bot_process = multiprocessing.Process(target=run_bot)
 
     bot_process.start()

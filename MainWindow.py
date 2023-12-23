@@ -10,18 +10,17 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QBrush, QPalette, QPixmap, QIcon
 from PyQt6.QtWidgets import QLineEdit, QMainWindow, QInputDialog, QSystemTrayIcon, QMenu
-
-FOLDER_JSONS = "/Users/aleksandragorbuncova/PycharmProjects/croak-child-lock/jsons/"
+from SystemFunctions import get_from_json, resource_path
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        update_json(FOLDER_JSONS + "settings.json", "total_time", 86400)
+        update_json(resource_path("jsons/settings.json"), "total_time", 86400)
 
-        settings = get_from_json(FOLDER_JSONS + "settings.json")
-        stats_apps = get_from_json(FOLDER_JSONS + "stats_apps.json")
+        settings = get_from_json(resource_path("jsons/settings.json"))
+        stats_apps = get_from_json(resource_path("jsons/stats_apps.json"))
 
         self.centralwidget = QtWidgets.QWidget(parent=self)
         self.centralwidget.setObjectName("centralwidget")
@@ -46,16 +45,20 @@ class MainWindow(QMainWindow):
         self.time_spent = 0  # Прошло времени в приложении
         self.stats_apps = stats_apps
         self.timer = QTimer()
+        # Из настроек
         self.total_time = settings['total_time']
+        self.token = settings["TOKEN"]
+        self.password = settings['password']
+
         self.active_app = self.total_time
         self.total_time_for_percents = self.total_time
-        self.password = settings['password']
-        self.blocked_apps = get_from_json(FOLDER_JSONS + "blocked_apps.json")
-        self.blocked_apps_for_percents = get_from_json(FOLDER_JSONS + "blocked_apps_for_percents.json") # для прогресс бара
+        self.blocked_apps = get_from_json(resource_path("jsons/blocked_apps.json"))
+        self.blocked_apps_for_percents = get_from_json(
+            resource_path("jsons/blocked_apps_for_percents.json"))  # для прогресс бара
         self.flag = True
         self.settings_window = None
+        self.code_window = None
         self.directory = None
-        self.token = settings["TOKEN"]
         self.break_json = None
 
         '''
