@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import QMainWindow, QInputDialog, QLineEdit
 from SystemFunctions import get_from_json, resource_path, get_active_app_name
 
 bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
-no_blocked_list = ["pycharm", "python", "Croak - Child Lock", "Finder"]
+no_blocked_list = ["pycharm", "python", "Croak - Child Lock", "Finder", "Croak"]
 
 
 class MainWindow(QMainWindow):
@@ -251,7 +251,8 @@ class MainWindow(QMainWindow):
             event.accept()
         else:
             event.ignore()
-            pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path=resource_path("images/incorrect_password.png.png"),
+            pop_up_message(text="Неверный пароль! Попробуйте еще раз.",
+                           icon_path=resource_path("images/incorrect_password.png.png"),
                            title="Ошибка")
 
     def open_settings(self) -> None:
@@ -271,7 +272,8 @@ class MainWindow(QMainWindow):
             self.settings_window = SettingsWindow(self)
             self.settings_window.show()
         else:
-            pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path=resource_path("images/incorrect_password.png.png"),
+            pop_up_message(text="Неверный пароль! Попробуйте еще раз.",
+                           icon_path=resource_path("images/incorrect_password.png.png"),
                            title="Ошибка")
 
     def update_settings(self) -> None:
@@ -394,6 +396,6 @@ class MainWindow(QMainWindow):
                 close_app(new_current_app)
                 apps_list = get_open_apps()
                 for app in no_blocked_list:
-                    apps_list.remove(app)
+                    if app in apps_list: apps_list.remove(app)
                 for application in apps_list:
                     close_app(application)
