@@ -460,12 +460,16 @@ class SettingsWindow(QWidget):
         """
         new_time = self.time_spinbox.time().toString("hh:mm")
         h, m = new_time.split(':')
-        self.total_time = int(h) * 3600 + int(m) * 60  # секунд
-        update_json(resource_path("jsons/settings.json"), "total_time", self.total_time)
-        self.main_window.update_settings()
-        pop_up_message(text=f"Лимит общего времени изменен на: {new_time} установлен", icon_path="check_icon.png",
-                       title="Успешно")
-
+        new_time = int(h) * 3600 + int(m) * 60  # секунд
+        if new_time > 0:
+            self.total_time = new_time
+            update_json(resource_path("jsons/settings.json"), "total_time", self.total_time)
+            self.main_window.update_settings()
+            pop_up_message(text=f"Лимит общего времени изменен на: {new_time} установлен", icon_path=resource_path("images/check_icon.png"),
+                           title="Успешно")
+        else:
+            pop_up_message(text=f"Лимит не может быть меньше минуты", icon_path=resource_path("images/error.png"),
+                           title="Ошибка")
     def change_password(self) -> None:
         """Изменяет пароль, если старый пароль совпадает с данными из файла jsons/settings.json
 
@@ -481,10 +485,10 @@ class SettingsWindow(QWidget):
         if old_password == data["password"]:
             self.password = new_password
             update_json(resource_path("jsons/settings.json"), "password", self.password)
-            pop_up_message(text="Пароль изменен.", icon_path="correct_password.png", title="Успешно")
+            pop_up_message(text="Пароль изменен.", icon_path=resource_path("images/correct_password.png.png"), title="Успешно")
             self.main_window.update_settings()
         else:
-            pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path="incorrect_password.png",
+            pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path=resource_path("images/incorrect_password.png.png"),
                            title="Ошибка")
 
     def change_directory(self) -> None:
