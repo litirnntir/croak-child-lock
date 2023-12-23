@@ -3,3 +3,4 @@ pyinstaller==6.3.0
 telebot~=0.0.5
 cryptography~=41.0.7
 pycryptodome==3.19.0
+osascript~=2020.12.3
