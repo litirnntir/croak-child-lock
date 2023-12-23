@@ -5,7 +5,7 @@ import time
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QBrush, QPalette, QPixmap
-from PyQt6.QtWidgets import QMainWindow
+from PyQt6.QtWidgets import QMainWindow, QInputDialog, QLineEdit
 from SystemFunctions import get_from_json, resource_path
 
 
@@ -63,7 +63,7 @@ class MainWindow(QMainWindow):
         # self.button_settings.clicked.connect(self.openSettings)
         self.button_add_time.clicked.connect(self.open_code_window)
         # self.timer.timeout.connect(self.update_data)
-        # self.button_exit.clicked.connect(self.close)
+        self.button_exit.clicked.connect(self.close)
 
         self.ui()
 
@@ -216,3 +216,23 @@ class MainWindow(QMainWindow):
     def open_code_window(self):
         self.code_window = CodeWindow(self)
         self.code_window.show()
+
+    def closeEvent(self, event):
+        dialog = QInputDialog(self)
+        dialog.setWindowTitle("Подтверждение выхода")
+        dialog.setLabelText("Введите пароль:")
+        dialog.setTextEchoMode(QLineEdit.EchoMode.Password)
+
+        ok = dialog.exec()
+        password = dialog.textValue()
+
+        data = get_from_json(resource_path("jsons/settings.json"))
+        print(data)
+        if ok and password == data["password"]:
+            if self.settings_window:
+                self.settings_window.close()
+                event.accept()
+        else:
+            event.ignore()
+           # TODO: добавить вывод
+        # pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path="incorrect_password.png", title="Ошибка")
