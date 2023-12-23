@@ -2,7 +2,7 @@ import telebot
 
 from CodeWindow import CodeWindow
 from SettingsWindow import SettingsWindow
-from SystemFunctions import update_json, close_app, send_notification, get_open_apps
+from SystemFunctions import update_json, close_app, send_notification, get_open_apps, reset_json
 import time
 
 from PyQt6 import QtCore, QtGui, QtWidgets
@@ -274,7 +274,8 @@ class MainWindow(QMainWindow):
             # pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path="incorrect_password.png",
             #                title="Ошибка")
 
-    def update_settings(self):
+    def update_settings(self) -> None:
+        """Обновляет настройки из файла jsons/settings.json"""
         data = get_from_json(resource_path("jsons/settings.json"))
         self.password = data["password"]
         self.total_time = data["total_time"]
@@ -286,7 +287,12 @@ class MainWindow(QMainWindow):
         self.blocked_apps_for_percents = get_from_json(
             resource_path("jsons/blocked_apps_for_percents.json"))  # для прогресс бара
 
-    def send_file_to_telegram(self, file="Статистика.xlsx"):
+    def send_file_to_telegram(self, file: str = "Статистика.xlsx") -> None:
+        """Отправляет файл в телеграм по chat_id
+
+        Аргументы:
+            file: имя файла, по умолчанию "Статистика.xlsx"
+        """
         # Открываем файл excel в режиме чтения
         print(self.directory)
         file = open(resource_path(self.directory + "/" + file), "rb")
@@ -295,19 +301,28 @@ class MainWindow(QMainWindow):
         # Закрываем файл
         file.close()
 
-    def send_to_telegram(self, text="Текст"):
+    def send_to_telegram(self, text="Текст") -> None:
+        """Отправляет текстовое сообщение в телеграм по chat_id
+
+        Аргументы:
+            text: текст сообщения, по умолчанию "Текст"
+        """
         bot.send_message(self.chat_id, text)
 
-    def update_data(self):
+    def update_data(self) -> None:
+        """Главная функция обработки действий"""
         # TODO: проверка на взлом файла
         utc_time = time.gmtime()  # текущее время, не зависит от устройства
         gmt4_time = time.gmtime(time.mktime(utc_time) + 8 * 3600)  # GMT+4
 
+        # В определенное время сброс статистики, времени и отправка в телеграм
         if self.send_stats_time == time.strftime("%H:%M:%S", gmt4_time):
-            self.send_file_to_telegram()
-
+            self.send_file_to_telegram("Статистика.xlsx")
+            update_json(resource_path("jsons/settings.json"), "total_time",
+                        24 * 60 * 60)  # обновляем на 24 часа в нужное время
+            reset_json(resource_path("jsons/stats_apps.json"))
+        # Меняем активное приложение
         new_current_app = get_active_app_name()
-
         self.text_active_app.setText(f"В {self.active_app}:")
 
         # Если время не вышло

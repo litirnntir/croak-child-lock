@@ -1,4 +1,6 @@
 PyQt6==6.6.1
+PyQt6-Charts==6.6.1
+PyQt6-Charts-Qt6==6.6.1
 pyinstaller==6.3.0
 telebot~=0.0.5
 cryptography~=41.0.7

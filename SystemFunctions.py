@@ -1,5 +1,6 @@
 import json
 import os
+import signal
 import subprocess
 import sys
 import osascript
@@ -72,7 +73,15 @@ def get_from_json(filename: str) -> dict:
     return json.loads(decrypt_json(filename))
 
 
-def get_active_app_name():
+def reset_json(filename: str) -> None:
+    """Очищает json файл и снова шифрует его"""
+    with open(filename, "w") as f:
+        f.write("{}")
+    encrypt_json(filename)
+
+
+def get_active_app_name() -> str:
+    """Возвращает имя активного приложения на Mac OS"""
     script = """
     tell application "System Events"
         set frontApp to name of first application process whose frontmost is true
@@ -83,13 +92,15 @@ def get_active_app_name():
     return output.strip().decode("utf-8")
 
 
-def send_notification(text):
+def send_notification(text: str) -> None:
+    """Отправляет уведомление на Mac OS с заданным текстом и заголовком "Croak" """
     osascript.run("defaults write com.apple.notificationcenterui bannerTime 2")
     command = f'display notification "{text}" with title "Croak"'
     osascript.run(command)
 
 
-def apps_list():
+def apps_list() -> list[str]:
+    """Возвращает список всех приложений в папке /Applications"""
     apps = []
     app_path = "/Applications"
     for file in os.listdir(app_path):
@@ -98,7 +109,8 @@ def apps_list():
     return apps
 
 
-def close_app(app_name):
+def close_app(app_name: str) -> None:
+    """Закрывает приложение по его имени, если оно запущено"""
     try:
         processes = os.popen("ps ax").readlines()
         for process in processes:
@@ -111,14 +123,9 @@ def close_app(app_name):
         pass
 
 
-def get_open_apps():
+def get_open_apps() -> list[str]:
+    """Возвращает список всех открытых приложений на Mac OS"""
     script = 'tell application "System Events" to get name of every process whose background only is false'
     output = subprocess.check_output(['osascript', '-e', script])
     output = output.decode('utf-8').strip().split(', ')
     return output
-
-# encrypt_json("jsons/blocked_apps.json")
-# encrypt_json("jsons/blocked_apps_for_percents.json")
-# encrypt_json("jsons/settings.json")
-# encrypt_json("jsons/stats_apps.json")
-# encrypt_json("jsons/codes.json")
