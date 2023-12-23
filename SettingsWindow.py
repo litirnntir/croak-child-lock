@@ -8,10 +8,10 @@ from PyQt6.QtCore import Qt, QTime
 from PyQt6.QtGui import QPixmap, QPalette, QBrush
 from PyQt6.QtWidgets import QWidget, QPushButton, QStackedWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, \
     QFormLayout, QSpinBox, QComboBox, QTimeEdit, QTableWidget, QHeaderView, QAbstractItemView, QLCDNumber, QFileDialog, \
-    QApplication
+    QApplication, QTableWidgetItem
 
 from PopUpMessages import pop_up_message
-from SystemFunctions import get_from_json, resource_path, apps_list, update_json
+from SystemFunctions import get_from_json, resource_path, apps_list, update_json, delete_from_json
 
 # Шрифт - кнопки
 font_button = QtGui.QFont()
@@ -162,9 +162,9 @@ class SettingsWindow(QWidget):
 
         # 2 страница
 
-        # self.set_limit.clicked.connect(self.p2_set_limit_clicked)
-        # self.p2_update_table()
-        # self.delete.clicked.connect(self.p2_delete_clicked)
+        self.set_limit.clicked.connect(self.new_app_limit)
+        self.update_limits_apps_table()
+        self.delete.clicked.connect(self.delete_clicked_limit)
 
         # 3 страница
 
@@ -449,6 +449,8 @@ class SettingsWindow(QWidget):
         self.page5.setLayout(self.page5_layout)
         self.stackedWidget.addWidget(self.page5)
 
+    # Страница 1
+
     def change_time_limit(self) -> None:
         """Выбирает новое время из спинбокса и обновляет настройки
 
@@ -464,12 +466,14 @@ class SettingsWindow(QWidget):
         if new_time > 0:
             self.total_time = new_time
             update_json(resource_path("jsons/settings.json"), "total_time", self.total_time)
-            self.main_window.update_settings()
-            pop_up_message(text=f"Лимит общего времени изменен на: {new_time} установлен", icon_path=resource_path("images/check_icon.png"),
+            self.main_window.update_from_json("total_time")
+            pop_up_message(text=f"Лимит общего времени изменен на: {new_time}",
+                           icon_path=resource_path("images/check_icon.png"),
                            title="Успешно")
         else:
             pop_up_message(text=f"Лимит не может быть меньше минуты", icon_path=resource_path("images/error.png"),
                            title="Ошибка")
+
     def change_password(self) -> None:
         """Изменяет пароль, если старый пароль совпадает с данными из файла jsons/settings.json
 
@@ -485,10 +489,12 @@ class SettingsWindow(QWidget):
         if old_password == data["password"]:
             self.password = new_password
             update_json(resource_path("jsons/settings.json"), "password", self.password)
-            pop_up_message(text="Пароль изменен.", icon_path=resource_path("images/correct_password.png.png"), title="Успешно")
-            self.main_window.update_settings()
+            pop_up_message(text="Пароль изменен.", icon_path=resource_path("images/correct_password.png.png"),
+                           title="Успешно")
+            self.main_window.update_from_json("password")
         else:
-            pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path=resource_path("images/incorrect_password.png.png"),
+            pop_up_message(text="Неверный пароль! Попробуйте еще раз.",
+                           icon_path=resource_path("images/incorrect_password.png.png"),
                            title="Ошибка")
 
     def change_directory(self) -> None:
@@ -500,7 +506,7 @@ class SettingsWindow(QWidget):
         self.directory = QFileDialog.getExistingDirectory(self, "Выберите директорию")
         self.directory_label.setText(f"Директория для сохранения статистики: {self.directory}")
         update_json(resource_path("jsons/settings.json"), "directory", self.directory)
-        self.main_window.update_settings()
+        self.main_window.update_from_json("directory")
 
     def closeEvent(self, event) -> None:
         """Обрабатывает событие закрытия окна и обновляет настройки
@@ -508,5 +514,46 @@ class SettingsWindow(QWidget):
         Аргументы:
             event: объект события
         """
-        self.main_window.update_settings()
         event.accept()
+
+    # Страница 2
+
+    def new_app_limit(self):
+        blocked_app = self.combo.currentText()
+        time_limit = self.time.time().toString("hh:mm")
+        h, m = time_limit.split(':')
+        time_limit = int(h) * 3600 + int(m) * 60
+        update_json(resource_path("jsons/blocked_apps.json"), blocked_app, time_limit)
+        update_json(resource_path("jsons/blocked_apps_for_percents.json"), blocked_app, time_limit)
+        self.update_limits_apps_table()
+        self.main_window.update_from_json("blocked_apps")
+        pop_up_message(text=f"Лимит для {blocked_app} установлен", icon_path="check_icon.png", title="Успешно")
+
+    def update_limits_apps_table(self):
+        data = get_from_json(resource_path("jsons/blocked_apps.json"))
+        self.table.setRowCount(len(data))
+        row = 0
+        for blocked_app, time_limit in data.items():
+            app_item = QTableWidgetItem(blocked_app)
+            h, m = divmod(time_limit, 3600)
+            m, s = divmod(m, 60)
+            time_str = f'{h:02d}:{m:02d}'
+            time_item = QTableWidgetItem(time_str)
+            self.table.setItem(row, 0, app_item)
+            self.table.setItem(row, 1, time_item)
+            row += 1
+
+    def delete_clicked_limit(self):
+        row = self.table.currentRow()
+        if row != -1:
+            app = self.table.item(row, 0).text()
+
+            delete_from_json(resource_path("jsons/blocked_apps.json"), app)
+            delete_from_json(resource_path("jsons/blocked_apps_for_percents.json"), app)
+            self.update_limits_apps_table()
+        self.main_window.update_from_json("blocked_apps")
+
+    # Страница 3
+    # Страница 4
+
+    # Страница 5

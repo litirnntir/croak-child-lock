@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import QMainWindow, QInputDialog, QLineEdit
 from SystemFunctions import get_from_json, resource_path, get_active_app_name
 
 bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
-no_blocked_list = ["pycharm", "python", "Croak - Child Lock", "Finder", "Croak"]
+no_blocked_list = ["pycharm", "python", "Croak - Child Lock", "Finder", "Croak", "Python"]
 
 
 class MainWindow(QMainWindow):
@@ -276,18 +276,20 @@ class MainWindow(QMainWindow):
                            icon_path=resource_path("images/incorrect_password.png.png"),
                            title="Ошибка")
 
-    def update_settings(self) -> None:
+    def update_from_json(self, param):
         """Обновляет настройки из файла jsons/settings.json"""
         data = get_from_json(resource_path("jsons/settings.json"))
-        self.password = data["password"]
-        self.total_time = data["total_time"]
-        self.total_time_for_percents = data["total_time"]
-        self.directory = data["directory"]
-        self.chat_id = data["chat_id"]
-        self.send_stats_time = data["send_stats_time"]
-        self.blocked_apps = get_from_json(resource_path("jsons/blocked_apps.json"))
-        self.blocked_apps_for_percents = get_from_json(
-            resource_path("jsons/blocked_apps_for_percents.json"))  # для прогресс бара
+        if param == "password": self.password = data["password"]
+        if param == "total_time" or "total_time_for_percents":
+            self.total_time = data["total_time"]
+            self.total_time_for_percents = data["total_time"]
+        if param == "directory": self.directory = data["directory"]
+        if param == "chat_id": self.chat_id = data["chat_id"]
+        if param == "send_stats_time": self.send_stats_time = data["send_stats_time"]
+        if param == "blocked_apps" or "blocked_apps_for_percents":
+            self.password = get_from_json(resource_path("jsons/blocked_apps.json"))
+            self.blocked_apps_for_percents = get_from_json(
+                resource_path("jsons/blocked_apps_for_percents.json"))  # для прогресс бара
 
     def send_file_to_telegram(self, file: str = "Статистика.xlsx") -> None:
         """Отправляет файл в телеграм по chat_id

@@ -65,6 +65,22 @@ def update_json(filename: str, key: str, value: any) -> None:
         f.write(encrypted_data)
 
 
+def delete_from_json(filename: str, key: str) -> None:
+    """Удаляет значение по ключу в JSON-файле и шифрует его с помощью ключа fernet.
+
+    :param filename: имя JSON-файла для удаления
+    :param key: ключ, по которому нужно удалить значение
+    """
+    data = json.loads(decrypt_json(filename))
+    if key in data:
+        del data[key]
+        # dict -> json -> bytes
+        data = json.dumps(data)
+        bytes_obj = data.encode('utf-8')
+        encrypted_data = fernet.encrypt(bytes_obj)
+        with open(filename, "wb") as f:
+            f.write(encrypted_data)
+
 def get_from_json(filename: str) -> dict:
     """Дешифрует json файл и возвращает данные
 
