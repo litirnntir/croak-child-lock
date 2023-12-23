@@ -1,4 +1,5 @@
 from CodeWindow import CodeWindow
+from SettingsWindow import SettingsWindow
 from SystemFunctions import update_json
 import time
 
@@ -7,6 +8,8 @@ from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QBrush, QPalette, QPixmap
 from PyQt6.QtWidgets import QMainWindow, QInputDialog, QLineEdit
 from SystemFunctions import get_from_json, resource_path
+
+FLAG = False
 
 
 class MainWindow(QMainWindow):
@@ -24,7 +27,7 @@ class MainWindow(QMainWindow):
         '''
         ОБЪЯВЛЕНИЕ
         '''
-        # элементы
+        # элементы интерфейса
         self.text_active_app = QtWidgets.QLabel(parent=self.centralwidget)
         self.button_settings = QtWidgets.QPushButton(parent=self.centralwidget)
         self.button_exit = QtWidgets.QPushButton(parent=self.centralwidget)
@@ -60,7 +63,7 @@ class MainWindow(QMainWindow):
         '''
         КНОПКИ
         '''
-        # self.button_settings.clicked.connect(self.openSettings)
+        self.button_settings.clicked.connect(self.open_settings)
         self.button_add_time.clicked.connect(self.open_code_window)
         # self.timer.timeout.connect(self.update_data)
         self.button_exit.clicked.connect(self.close)
@@ -227,12 +230,29 @@ class MainWindow(QMainWindow):
         password = dialog.textValue()
 
         data = get_from_json(resource_path("jsons/settings.json"))
-        print(data)
         if ok and password == data["password"]:
             if self.settings_window:
                 self.settings_window.close()
-                event.accept()
+            event.accept()
         else:
             event.ignore()
-           # TODO: добавить вывод
+        # TODO: добавить вывод
         # pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path="incorrect_password.png", title="Ошибка")
+
+    def open_settings(self):
+        dialog = QInputDialog(self)
+        dialog.setWindowTitle("Подтверждение выхода")
+        dialog.setLabelText("Введите пароль:")
+        dialog.setTextEchoMode(QLineEdit.EchoMode.Password)
+        ok = dialog.exec()
+        password = dialog.textValue()
+
+        data = get_from_json(resource_path("jsons/settings.json"))
+        if ok and password == data["password"]:
+            self.settings_window = SettingsWindow(self)
+            self.settings_window.show()
+        else:
+            pass
+            # TODO: добавить сообщение
+            # pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path="incorrect_password.png",
+            #                title="Ошибка")

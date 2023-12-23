@@ -3,7 +3,6 @@ import multiprocessing
 import sys
 
 import telebot
-from PyQt6 import QtGui
 from PyQt6.QtWidgets import QApplication
 
 from MainWindow import MainWindow
@@ -35,9 +34,9 @@ def start(message):
 
 if __name__ == '__main__':
     multiprocessing.freeze_support()
-    time_process = multiprocessing.Process(target=run_window)
-    multiprocessing.freeze_support()
     bot_process = multiprocessing.Process(target=run_bot)
+    multiprocessing.freeze_support()
+    time_process = multiprocessing.Process(target=run_window)
 
     bot_process.start()
     time_process.start()
