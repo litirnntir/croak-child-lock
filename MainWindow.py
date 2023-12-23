@@ -1,6 +1,7 @@
 import telebot
 
 from CodeWindow import CodeWindow
+from PopUpMessages import pop_up_message
 from SettingsWindow import SettingsWindow
 from SystemFunctions import update_json, close_app, send_notification, get_open_apps, reset_json
 import time
@@ -249,8 +250,8 @@ class MainWindow(QMainWindow):
             event.accept()
         else:
             event.ignore()
-        # TODO: добавить вывод
-        # pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path="incorrect_password.png", title="Ошибка")
+            pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path="incorrect_password.png",
+                           title="Ошибка")
 
     def open_settings(self) -> None:
         """
@@ -269,10 +270,8 @@ class MainWindow(QMainWindow):
             self.settings_window = SettingsWindow(self)
             self.settings_window.show()
         else:
-            pass
-            # TODO: добавить сообщение
-            # pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path="incorrect_password.png",
-            #                title="Ошибка")
+            pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path="incorrect_password.png",
+                           title="Ошибка")
 
     def update_settings(self) -> None:
         """Обновляет настройки из файла jsons/settings.json"""
@@ -323,7 +322,7 @@ class MainWindow(QMainWindow):
             reset_json(resource_path("jsons/stats_apps.json"))
         # Меняем активное приложение
         new_current_app = get_active_app_name()
-        self.text_active_app.setText(f"В {self.active_app}:")
+        self.text_active_app.setText(f"В {new_current_app}:")
 
         # Если время не вышло
         if self.total_time > 0:

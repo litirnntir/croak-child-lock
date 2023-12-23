@@ -1,3 +1,5 @@
+import time
+
 from PyQt6.QtCharts import QChart, QChartView, QPieSeries
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QColor, QPainter
@@ -5,9 +7,11 @@ from PyQt6 import QtGui
 from PyQt6.QtCore import Qt, QTime
 from PyQt6.QtGui import QPixmap, QPalette, QBrush
 from PyQt6.QtWidgets import QWidget, QPushButton, QStackedWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, \
-    QFormLayout, QSpinBox, QComboBox, QTimeEdit, QTableWidget, QHeaderView, QAbstractItemView, QLCDNumber
+    QFormLayout, QSpinBox, QComboBox, QTimeEdit, QTableWidget, QHeaderView, QAbstractItemView, QLCDNumber, QFileDialog, \
+    QApplication
 
-from SystemFunctions import get_from_json, resource_path, apps_list
+from PopUpMessages import pop_up_message
+from SystemFunctions import get_from_json, resource_path, apps_list, update_json
 
 # Шрифт - кнопки
 font_button = QtGui.QFont()
@@ -56,7 +60,7 @@ class SettingsWindow(QWidget):
 
         self.label1 = QLabel('', self.page1)
         self.time_label = QLabel("Установить лимит времени:", self.page1)
-        self.time_spinbox = QSpinBox(self.page1)
+        self.time_spinbox = QTimeEdit()
         self.time_format = "hh:mm"
         self.select_button = QPushButton("Выбрать", self.page1)
         self.password_label = QLabel("Сменить пароль", self.page1)
@@ -153,9 +157,8 @@ class SettingsWindow(QWidget):
 
         # 1 страница
 
-        # self.time_spinbox.valueChanged.connect(self.p1_update_time)
-        # self.select_button.clicked.connect(self.p1_select_time)
-        # self.change_password_button.clicked.connect(self.p1_change_password)
+        self.select_button.clicked.connect(self.p1_select_time)
+        self.change_password_button.clicked.connect(self.p1_change_password)
 
         # 2 страница
 
@@ -233,10 +236,14 @@ class SettingsWindow(QWidget):
     def ui_page1(self):
         self.time_label.setFont(font_h1)
         self.time_label.setStyleSheet("color: rgb(255, 255, 255);")
-        self.time_spinbox.setRange(0, 1440)  # Минуты в сутках
-        self.time_spinbox.setSuffix(" минут")
-        self.time_spinbox.setSingleStep(15)
-        self.time_spinbox.setValue(0)
+
+        self.time_spinbox.setDisplayFormat("hh:mm")
+        self.time_spinbox.setTime(QTime(0, 0))
+
+        # self.time_spinbox.setRange(0, 1440)  # Минуты в сутках
+        # self.time_spinbox.setSuffix(" минут")
+        # self.time_spinbox.setSingleStep(15)
+        # self.time_spinbox.setValue(0)
         self.select_button.setFont(font_button)
         self.select_button.setStyleSheet(
             "border-radius: 10px;color: rgb(255, 255, 255);background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:1.33, fx:0.5, fy:0.5, stop:0 rgba(26, 95, 146, 255), stop:1 rgba(255, 255, 255, 0));")
@@ -441,3 +448,35 @@ class SettingsWindow(QWidget):
         self.page5_layout.addWidget(self.page5_confirm_button)
         self.page5.setLayout(self.page5_layout)
         self.stackedWidget.addWidget(self.page5)
+
+    def p1_select_time(self):
+        new_time = self.time_spinbox.time().toString("hh:mm")
+        h, m = new_time.split(':')
+        self.total_time = int(h) * 3600 + int(m) * 60  # секунд
+        update_json(resource_path("jsons/settings.json"), "total_time", self.total_time)
+        self.main_window.update_settings()
+        pop_up_message(text=f"Лимит общего времени изменен на: {new_time} установлен", icon_path="check_icon.png",
+                       title="Успешно")
+
+    def p1_change_password(self):
+        old_password = self.old_password_edit.text()
+        new_password = self.new_password_edit.text()
+        data = get_from_json(resource_path("jsons/settings.json"))
+        if old_password == data["password"]:
+            self.password = new_password
+            update_json(resource_path("jsons/settings.json"), "password", self.password)
+            pop_up_message(text="Пароль изменен.", icon_path="correct_password.png", title="Успешно")
+            self.main_window.update_settings()
+        else:
+            pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path="incorrect_password.png",
+                           title="Ошибка")
+
+    def p1_select_directory(self):
+        self.directory = QFileDialog.getExistingDirectory(self, "Выберите директорию")
+        self.directory_label.setText(f"Директория для сохранения статистики: {self.directory}")
+        update_json(resource_path("jsons/settings.json"), "directory", self.directory)
+        self.main_window.update_settings()
+
+    def closeEvent(self, event):
+        self.main_window.update_settings()
+        event.accept()
