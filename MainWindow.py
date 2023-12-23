@@ -1,4 +1,4 @@
-from CodbuieWindow import CodeWindow
+from CodeWindow import CodeWindow
 from SystemFunctions import update_json
 import time
 
