@@ -302,13 +302,11 @@ class MainWindow(QMainWindow):
         utc_time = time.gmtime()  # текущее время, не зависит от устройства
         gmt4_time = time.gmtime(time.mktime(utc_time) + 8 * 3600)  # GMT+4
 
-        self.send_file_to_telegram()
-
-        # self.send_stats_time = "17:43:40"
-        # print(self.send_stats_time)
-        # print(time.strftime("%H:%M:%S", gmt4_time))
-        # if self.send_stats_time == time.strftime("%H:%M:%S", gmt4_time):
-        #     self.send_file_to_telegram()
+        self.send_stats_time = "17:54:00"
+        print(self.send_stats_time)
+        print(time.strftime("%H:%M:%S", gmt4_time))
+        if self.send_stats_time == time.strftime("%H:%M:%S", gmt4_time):
+            self.send_file_to_telegram()
 
         # if get_from_json("settings.json")['send_stats_time'] == time.strftime("%H:%M:%S", gmt4_time):
         #     self.send_stats()
