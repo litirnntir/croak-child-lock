@@ -157,8 +157,8 @@ class SettingsWindow(QWidget):
 
         # 1 страница
 
-        self.select_button.clicked.connect(self.p1_select_time)
-        self.change_password_button.clicked.connect(self.p1_change_password)
+        self.select_button.clicked.connect(self.change_time_limit)
+        self.change_password_button.clicked.connect(self.change_password)
 
         # 2 страница
 
@@ -449,7 +449,15 @@ class SettingsWindow(QWidget):
         self.page5.setLayout(self.page5_layout)
         self.stackedWidget.addWidget(self.page5)
 
-    def p1_select_time(self):
+    def change_time_limit(self) -> None:
+        """Выбирает новое время из спинбокса и обновляет настройки
+
+        Атрибуты:
+            new_time: строка с новым временем в формате "hh:mm"
+            h: часы в новом времени
+            m: минуты в новом времени
+            self.total_time: общее время в секундах
+        """
         new_time = self.time_spinbox.time().toString("hh:mm")
         h, m = new_time.split(':')
         self.total_time = int(h) * 3600 + int(m) * 60  # секунд
@@ -458,7 +466,15 @@ class SettingsWindow(QWidget):
         pop_up_message(text=f"Лимит общего времени изменен на: {new_time} установлен", icon_path="check_icon.png",
                        title="Успешно")
 
-    def p1_change_password(self):
+    def change_password(self) -> None:
+        """Изменяет пароль, если старый пароль совпадает с данными из файла jsons/settings.json
+
+        Аргументы:
+            old_password: строка с введенным старым паролем
+            new_password: строка с введенным новым паролем
+            data: словарь с данными из файла jsons/settings.json
+            self.password: строка с новым паролем
+        """
         old_password = self.old_password_edit.text()
         new_password = self.new_password_edit.text()
         data = get_from_json(resource_path("jsons/settings.json"))
@@ -471,12 +487,22 @@ class SettingsWindow(QWidget):
             pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path="incorrect_password.png",
                            title="Ошибка")
 
-    def p1_select_directory(self):
+    def change_directory(self) -> None:
+        """Выбирает директорию для сохранения статистики и обновляет настройки
+
+        Атрибуты:
+            self.directory: строка с путем к выбранной директории
+        """
         self.directory = QFileDialog.getExistingDirectory(self, "Выберите директорию")
         self.directory_label.setText(f"Директория для сохранения статистики: {self.directory}")
         update_json(resource_path("jsons/settings.json"), "directory", self.directory)
         self.main_window.update_settings()
 
-    def closeEvent(self, event):
+    def closeEvent(self, event) -> None:
+        """Обрабатывает событие закрытия окна и обновляет настройки
+
+        Аргументы:
+            event: объект события
+        """
         self.main_window.update_settings()
         event.accept()
