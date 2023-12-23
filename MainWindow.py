@@ -1,15 +1,11 @@
-from PyQt6.QtGui import QPixmap, QPalette, QBrush
-from PyQt6.QtWidgets import QMainWindow
-from SystemFunctions import update_json, get_from_json
-import json
-import os
+from CodbuieWindow import CodeWindow
+from SystemFunctions import update_json
 import time
-import telebot
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QBrush, QPalette, QPixmap, QIcon
-from PyQt6.QtWidgets import QLineEdit, QMainWindow, QInputDialog, QSystemTrayIcon, QMenu
+from PyQt6.QtGui import QBrush, QPalette, QPixmap
+from PyQt6.QtWidgets import QMainWindow
 from SystemFunctions import get_from_json, resource_path
 
 
@@ -65,7 +61,7 @@ class MainWindow(QMainWindow):
         КНОПКИ
         '''
         # self.button_settings.clicked.connect(self.openSettings)
-        # self.button_add_time.clicked.connect(self.open_code_window)
+        self.button_add_time.clicked.connect(self.open_code_window)
         # self.timer.timeout.connect(self.update_data)
         # self.button_exit.clicked.connect(self.close)
 
@@ -216,3 +212,7 @@ class MainWindow(QMainWindow):
         self.time_all_time.setText(_translate("MainWindow", time.strftime("%H:%M:%S", time.gmtime(self.total_time))))
         self.time_active_app.setText(
             _translate("MainWindow", time.strftime("%H:%M:%S", time.gmtime(self.total_time))))
+
+    def open_code_window(self):
+        self.code_window = CodeWindow(self)
+        self.code_window.show()

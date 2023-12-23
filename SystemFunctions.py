@@ -73,3 +73,4 @@ def get_from_json(filename: str) -> dict:
 # encrypt_json("jsons/blocked_apps_for_percents.json")
 # encrypt_json("jsons/settings.json")
 # encrypt_json("jsons/stats_apps.json")
+# encrypt_json("jsons/codes.json")
