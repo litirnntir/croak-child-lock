@@ -67,7 +67,8 @@ class SettingsWindow(QWidget):
         self.old_password_edit = QLineEdit(self.page1)
         self.new_password_edit = QLineEdit(self.page1)
         self.change_password_button = QPushButton("Сменить пароль", self.page1)
-        self.directory_label = QLabel("Директория для сохранения статистики: Нет", self.page1)
+        directory = get_from_json(resource_path("jsons/settings.json"))["directory"]
+        self.directory_label = QLabel(f"Директория для сохранения статистики: {directory}", self.page1)
         self.directory_button = QPushButton("Выбрать директорию", self.page1)
         self.page1_layout = QVBoxLayout()
         self.form_layout = QFormLayout()
@@ -159,6 +160,7 @@ class SettingsWindow(QWidget):
 
         self.select_button.clicked.connect(self.change_time_limit)
         self.change_password_button.clicked.connect(self.change_password)
+        self.directory_button.clicked.connect(self.change_directory)
 
         # 2 страница
 
@@ -240,10 +242,6 @@ class SettingsWindow(QWidget):
         self.time_spinbox.setDisplayFormat("hh:mm")
         self.time_spinbox.setTime(QTime(0, 0))
 
-        # self.time_spinbox.setRange(0, 1440)  # Минуты в сутках
-        # self.time_spinbox.setSuffix(" минут")
-        # self.time_spinbox.setSingleStep(15)
-        # self.time_spinbox.setValue(0)
         self.select_button.setFont(font_button)
         self.select_button.setStyleSheet(
             "border-radius: 10px;color: rgb(255, 255, 255);background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:1.33, fx:0.5, fy:0.5, stop:0 rgba(26, 95, 146, 255), stop:1 rgba(255, 255, 255, 0));")
@@ -460,18 +458,18 @@ class SettingsWindow(QWidget):
             m: минуты в новом времени
             self.total_time: общее время в секундах
         """
-        new_time = self.time_spinbox.time().toString("hh:mm")
-        h, m = new_time.split(':')
+        time_limit = self.time_spinbox.time().toString("hh:mm")
+        h, m = time_limit.split(':')
         new_time = int(h) * 3600 + int(m) * 60  # секунд
         if new_time > 0:
             self.total_time = new_time
             update_json(resource_path("jsons/settings.json"), "total_time", self.total_time)
             self.main_window.update_from_json("total_time")
-            pop_up_message(text=f"Лимит общего времени изменен на: {new_time}",
-                           icon_path=resource_path("images/check_icon.png"),
+            pop_up_message(text=f"Лимит общего времени изменен на: {time_limit}",
+                           icon_path=resource_path("images/success2.png"),
                            title="Успешно")
         else:
-            pop_up_message(text=f"Лимит не может быть меньше минуты", icon_path=resource_path("images/error.png"),
+            pop_up_message(text=f"Лимит не может быть меньше минуты", icon_path=resource_path("images/error3.png"),
                            title="Ошибка")
 
     def change_password(self) -> None:
@@ -489,12 +487,12 @@ class SettingsWindow(QWidget):
         if old_password == data["password"]:
             self.password = new_password
             update_json(resource_path("jsons/settings.json"), "password", self.password)
-            pop_up_message(text="Пароль изменен.", icon_path=resource_path("images/correct_password.png.png"),
+            pop_up_message(text="Пароль изменен.", icon_path=resource_path("images/success3.png"),
                            title="Успешно")
             self.main_window.update_from_json("password")
         else:
             pop_up_message(text="Неверный пароль! Попробуйте еще раз.",
-                           icon_path=resource_path("images/incorrect_password.png.png"),
+                           icon_path=resource_path("images/error5.png"),
                            title="Ошибка")
 
     def change_directory(self) -> None:
@@ -506,6 +504,7 @@ class SettingsWindow(QWidget):
         self.directory = QFileDialog.getExistingDirectory(self, "Выберите директорию")
         self.directory_label.setText(f"Директория для сохранения статистики: {self.directory}")
         update_json(resource_path("jsons/settings.json"), "directory", self.directory)
+        print(get_from_json(resource_path("jsons/settings.json")))
         self.main_window.update_from_json("directory")
 
     def closeEvent(self, event) -> None:

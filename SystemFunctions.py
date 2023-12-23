@@ -3,6 +3,8 @@ import os
 import signal
 import subprocess
 import sys
+
+import openpyxl as openpyxl
 import osascript
 
 from cryptography.fernet import Fernet
@@ -81,6 +83,7 @@ def delete_from_json(filename: str, key: str) -> None:
         with open(filename, "wb") as f:
             f.write(encrypted_data)
 
+
 def get_from_json(filename: str) -> dict:
     """Дешифрует json файл и возвращает данные
 
@@ -145,3 +148,18 @@ def get_open_apps() -> list[str]:
     output = subprocess.check_output(['osascript', '-e', script])
     output = output.decode('utf-8').strip().split(', ')
     return output
+
+
+def save_stats_to_file(directory, stats_data):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    data = stats_data
+
+    row = 1
+    for app, time in data.items():
+        ws.cell(row=row, column=1).value = app
+        ws.cell(row=row,
+                column=2).value = f"{divmod(divmod(time, 3600)[0], 24)[1]:02}:{divmod(divmod(time, 3600)[1], 60)[0]:02}:{divmod(divmod(time, 3600)[1], 60)[1]:02}"
+        row += 1
+
+    wb.save(directory)

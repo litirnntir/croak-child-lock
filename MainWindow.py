@@ -3,7 +3,7 @@ import telebot
 from CodeWindow import CodeWindow
 from PopUpMessages import pop_up_message
 from SettingsWindow import SettingsWindow
-from SystemFunctions import update_json, close_app, send_notification, get_open_apps, reset_json
+from SystemFunctions import update_json, close_app, send_notification, get_open_apps, reset_json, save_stats_to_file
 import time
 
 from PyQt6 import QtCore, QtGui, QtWidgets
@@ -44,6 +44,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.centralwidget)
 
         # атрибуты
+        self.file_stats_name = "Статистика.xlsx"
         self.time_left_block_app = 0  # Осталось времени в приложении
         self.time_spent = 0  # Прошло времени в приложении
         self.stats_apps = stats_apps
@@ -252,7 +253,7 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
             pop_up_message(text="Неверный пароль! Попробуйте еще раз.",
-                           icon_path=resource_path("images/incorrect_password.png.png"),
+                           icon_path=resource_path("images/error1.png"),
                            title="Ошибка")
 
     def open_settings(self) -> None:
@@ -273,7 +274,7 @@ class MainWindow(QMainWindow):
             self.settings_window.show()
         else:
             pop_up_message(text="Неверный пароль! Попробуйте еще раз.",
-                           icon_path=resource_path("images/incorrect_password.png.png"),
+                           icon_path=resource_path("images/error2.png"),
                            title="Ошибка")
 
     def update_from_json(self, param):
@@ -291,15 +292,16 @@ class MainWindow(QMainWindow):
             self.blocked_apps_for_percents = get_from_json(
                 resource_path("jsons/blocked_apps_for_percents.json"))  # для прогресс бара
 
-    def send_file_to_telegram(self, file: str = "Статистика.xlsx") -> None:
+    def send_stats_file_to_telegram(self) -> None:
         """Отправляет файл в телеграм по chat_id
 
         Аргументы:
             file: имя файла, по умолчанию "Статистика.xlsx"
         """
+        save_stats_to_file(self.directory + "/" + self.file_stats_name,
+                           get_from_json(resource_path("jsons/stats_apps.json")))
         # Открываем файл excel в режиме чтения
-        print(self.directory)
-        file = open(resource_path(self.directory + "/" + file), "rb")
+        file = open(resource_path(self.directory + "/" + self.file_stats_name), "rb")
         # Отправляем файл по chat_id
         bot.send_document(self.chat_id, file)
         # Закрываем файл
@@ -316,6 +318,7 @@ class MainWindow(QMainWindow):
     def update_data(self) -> None:
         """Главная функция обработки действий"""
         try:
+            self.send_stats_file_to_telegram()
             # TODO: проверка на взлом файла
             utc_time = time.gmtime()  # текущее время, не зависит от устройства
             gmt4_time = time.gmtime(time.mktime(utc_time) + 8 * 3600)  # GMT+4
@@ -405,4 +408,5 @@ class MainWindow(QMainWindow):
                     for application in apps_list:
                         close_app(application)
 
-        except:pass
+        except:
+            pass

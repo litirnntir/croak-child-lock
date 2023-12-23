@@ -1,5 +1,6 @@
 from PyQt6 import QtWidgets
 
+from PopUpMessages import pop_up_message
 from SystemFunctions import resource_path, get_from_json
 
 
@@ -21,8 +22,9 @@ class CodeWindow(QtWidgets.QDialog):
         code = self.code_edit.text()
         codes = get_from_json(resource_path("jsons/codes.json"))
         if code in codes:
+            pop_up_message(f"Код |{code}| применен", resource_path("images/success6.png"), "Успешно")
             QtWidgets.QMessageBox.information(self, "Успешно", "Код верный")
 
         else:
-            QtWidgets.QMessageBox.warning(self, "Ошибка", "Код неверный")
+            pop_up_message(f"Код |{code}| не найден", resource_path("images/error6.png"), "Ошибка")
         self.close()
