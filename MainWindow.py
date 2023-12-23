@@ -1,3 +1,5 @@
+import telebot
+
 from CodeWindow import CodeWindow
 from SettingsWindow import SettingsWindow
 from SystemFunctions import update_json
@@ -10,6 +12,8 @@ from PyQt6.QtWidgets import QMainWindow, QInputDialog, QLineEdit
 from SystemFunctions import get_from_json, resource_path
 
 FLAG = False
+
+bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
 
 
 class MainWindow(QMainWindow):
@@ -48,6 +52,9 @@ class MainWindow(QMainWindow):
         self.total_time = settings['total_time']
         self.token = settings["TOKEN"]
         self.password = settings['password']
+        self.chat_id = settings['chat_id']
+        self.send_stats_time = settings['send_stats_time']
+        self.directory = settings['directory']
 
         self.active_app = self.total_time
         self.total_time_for_percents = self.total_time
@@ -57,7 +64,6 @@ class MainWindow(QMainWindow):
         self.flag = True
         self.settings_window = None
         self.code_window = None
-        self.directory = None
         self.break_json = None
 
         '''
@@ -65,7 +71,7 @@ class MainWindow(QMainWindow):
         '''
         self.button_settings.clicked.connect(self.open_settings)
         self.button_add_time.clicked.connect(self.open_code_window)
-        # self.timer.timeout.connect(self.update_data)
+        self.timer.timeout.connect(self.update_data)
         self.button_exit.clicked.connect(self.close)
 
         self.ui()
@@ -204,7 +210,7 @@ class MainWindow(QMainWindow):
         # timer - запуск таймера
         self.timer.start(1000)
 
-    def retranslate_ui(self, MainWindow):
+    def retranslate_ui(self, MainWindow) -> None:
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Croak - Child Lock"))
         self.text_active_app.setText(_translate("MainWindow", "В активном приложении:"))
@@ -216,11 +222,20 @@ class MainWindow(QMainWindow):
         self.time_active_app.setText(
             _translate("MainWindow", time.strftime("%H:%M:%S", time.gmtime(self.total_time))))
 
-    def open_code_window(self):
+    def open_code_window(self) -> None:
+        """
+        Открывает окно для ввода кода.
+        :return: None
+        """
         self.code_window = CodeWindow(self)
         self.code_window.show()
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        """
+        Обрабатывает событие закрытия главного окна.
+        :param event: событие закрытия
+        :return: None
+        """
         dialog = QInputDialog(self)
         dialog.setWindowTitle("Подтверждение выхода")
         dialog.setLabelText("Введите пароль:")
@@ -239,7 +254,11 @@ class MainWindow(QMainWindow):
         # TODO: добавить вывод
         # pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path="incorrect_password.png", title="Ошибка")
 
-    def open_settings(self):
+    def open_settings(self) -> None:
+        """
+        Открывает окно настроек приложения.
+        :return: None
+        """
         dialog = QInputDialog(self)
         dialog.setWindowTitle("Подтверждение выхода")
         dialog.setLabelText("Введите пароль:")
@@ -256,3 +275,129 @@ class MainWindow(QMainWindow):
             # TODO: добавить сообщение
             # pop_up_message(text="Неверный пароль! Попробуйте еще раз.", icon_path="incorrect_password.png",
             #                title="Ошибка")
+
+    def update_settings(self):
+        data = get_from_json(resource_path("jsons/settings.json"))
+        self.password = data["password"]
+        self.total_time = data["total_time"]
+        self.total_time_for_percents = data["total_time"]
+        self.directory = data["directory"]
+        self.chat_id = data["chat_id"]
+        self.send_stats_time = data["send_stats_time"]
+
+    def send_file_to_telegram(self, file="Статистика.xlsx"):
+        # Открываем файл excel в режиме чтения
+        print(self.directory)
+        file = open(resource_path(self.directory + "/" + file), "rb")
+        # Отправляем файл по chat_id
+        bot.send_document(self.chat_id, file)
+        # Закрываем файл
+        file.close()
+
+    def send_to_telegram(self, text="Текст"):
+        bot.send_message(self.chat_id, text)
+
+    def update_data(self):
+        # TODO: проверка на взлом файла
+        utc_time = time.gmtime()  # текущее время, не зависит от устройства
+        gmt4_time = time.gmtime(time.mktime(utc_time) + 8 * 3600)  # GMT+4
+
+        self.send_file_to_telegram()
+
+        # self.send_stats_time = "17:43:40"
+        # print(self.send_stats_time)
+        # print(time.strftime("%H:%M:%S", gmt4_time))
+        # if self.send_stats_time == time.strftime("%H:%M:%S", gmt4_time):
+        #     self.send_file_to_telegram()
+
+        # if get_from_json("settings.json")['send_stats_time'] == time.strftime("%H:%M:%S", gmt4_time):
+        #     self.send_stats()
+        #     with open("stats_apps.json", "w") as f:
+        #         json.dump({}, f)
+        #
+        # #### TODO optimize
+        # self.blocked_apps = get_from_json("blocked_apps.json")
+        # self.blocked_apps_for_percents = get_from_json("blocked_apps_for_percents.json")
+        # current_app = get_active_app_name()
+        # if self.total_time > 0 and self.flag:
+        #     self.total_time -= 1
+        #     if current_app != self.active_app:
+        #         if self.time_spent > 1:
+        #
+        #             with open("stats_apps.json", "r") as file:
+        #                 self.stats_apps = json.load(file)
+        #                 if self.active_app in self.stats_apps:
+        #                     self.stats_apps[self.active_app] = self.stats_apps[self.active_app] + self.time_spent
+        #                 else:
+        #                     self.stats_apps[self.active_app] = self.time_spent
+        #             with open("stats_apps.json", "w") as file:
+        #                 json.dump(self.stats_apps, file)
+        #
+        #         self.time_spent = 0
+        #         if self.active_app in self.blocked_apps:
+        #             with open("blocked_apps.json", "r") as file:
+        #                 data = json.load(file)
+        #             data[self.active_app] = self.time_left_block_app
+        #             with open("blocked_apps.json", "w") as file:
+        #                 json.dump(data, file)
+        #         self.active_app = current_app
+        #         if current_app in self.blocked_apps:
+        #             if self.blocked_apps[current_app] <= 1:
+        #                 close_app(current_app)
+        #                 self.time_left_block_app = 0
+        #
+        #                 send_notification(f"Время {current_app} вышло. Вы больше не можете находиться в приложении")
+        #             else:
+        #                 self.time_left_block_app = self.blocked_apps[current_app]
+        #                 self.time_left_block_app -= 1
+        #         else:
+        #             self.time_left_block_app = self.total_time
+        #     else:
+        #         self.time_spent += 1
+        #         if current_app in self.blocked_apps:
+        #             if self.time_left_block_app <= 1:
+        #                 close_app(current_app)
+        #                 self.time_left_block_app = 0
+        #                 send_notification(f"Время {current_app} вышло. Вы больше не можете находиться в приложении")
+        #             else:
+        #                 self.time_left_block_app -= 1
+        #         else:
+        #             self.time_left_block_app = self.total_time
+        #
+        #     self.time_all_time.setText(time.strftime("%H:%M:%S", time.gmtime(self.total_time)))
+        #
+        #     if self.time_left_block_app < self.total_time:
+        #         self.time_active_app.setText(time.strftime("%H:%M:%S", time.gmtime(self.time_left_block_app)))
+        #     else:
+        #         self.time_active_app.setText(time.strftime("%H:%M:%S", time.gmtime(self.total_time)))
+        #
+        #     if self.active_app in self.blocked_apps and self.time_left_block_app < self.total_time:
+        #         if self.time_left_block_app > 1:
+        #             self.progress_bar_active_app.setProperty("value", 100 * self.time_left_block_app /
+        #                                                      self.blocked_apps_for_percents[self.active_app])
+        #         else:
+        #             self.progress_bar_active_app.setProperty("value", 0)
+        #     else:
+        #         self.progress_bar_active_app.setProperty("value",
+        #                                                  100 * self.total_time / self.total_time_for_percents)
+        #     self.progress_bar_all_time.setProperty("value", 100 * self.total_time / self.total_time_for_percents)
+        #
+        # #####
+        # elif self.total_time < 1 and self.flag:
+        #     if current_app != "Python" and current_app != "pycharm" and current_app != "Croak - Child Lock":
+        #         send_notification(f"Общее время вышло. Вы больше не можете зайти в {current_app}")
+        #         close_app(current_app)
+        #         apps_list = get_open_apps()
+        #         if "pycharm" in apps_list: apps_list.remove("pycharm")
+        #         if "python" in apps_list: apps_list.remove("python")
+        #         if "Croak - Child Lock" in apps_list: apps_list.remove("Croak - Child Lock")
+        #         if "Finder" in apps_list: apps_list.remove("Finder")
+        #         for application in apps_list:
+        #             close_app(application)
+        # else:
+        #     self.time_all_time.setText(time.strftime("%H:%M:%S", time.gmtime(0)))
+        #     self.time_active_app.setText(time.strftime("%H:%M:%S", time.gmtime(0)))
+        #
+        #     self.progress_bar_active_app.setProperty("value", 100)
+        #     self.progress_bar_all_time.setProperty("value", 100)
+        # self.text_active_app.setText(f"В {self.active_app}:")
