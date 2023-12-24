@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import QWidget, QPushButton, QStackedWidget, QVBoxLayout, Q
 
 from PopUpMessages import pop_up_message
 from SystemFunctions import get_from_json, resource_path, apps_list, update_json, delete_from_json, reset_json, \
-    save_stats_to_file
+    save_stats_to_file, format_time
 
 # Шрифт - кнопки
 font_button = QtGui.QFont()
@@ -96,9 +96,9 @@ class SettingsWindow(QWidget):
         self.chart = QChart()
         self.color_button = QPushButton("Выбрать цвет фона")
         self.series = QPieSeries()
-        self.colors = [QColor(240, 128, 128), QColor(0, 250, 154), QColor(255, 182, 193),
-                       QColor(199, 21, 133), QColor(255, 140, 0), QColor(127, 255, 212), QColor(0, 0, 205),
-                       QColor(255, 240, 245), QColor(139, 69, 19), QColor(255, 255, 0), QColor(0, 128, 128),
+        self.colors = [QColor(173, 255, 47), QColor(32, 178, 170), QColor(0, 255, 127),
+                       QColor(46, 139, 87), QColor(0, 128, 0), QColor(0, 100, 0), QColor(102, 205, 170),
+                       QColor(0, 255, 255), QColor(30, 144, 255), QColor(0, 0, 205), QColor(25, 25, 112),
                        QColor(128, 128, 128)]
 
         self.chart_view = QChartView(self.chart)
@@ -605,11 +605,12 @@ class SettingsWindow(QWidget):
             seconds = hours * 3600 + minutes * 60
 
         if code:
-            update_json(resource_path("jsons/codes.json"), code, {"app": "Общее врем", "time": seconds})
+            pop_up_message("Код на общее время добавлен!", title="Успешно", icon_path=resource_path("images/success4.png"))
+            update_json(resource_path("jsons/codes.json"), code, {"app": "Общее время", "time": seconds})
             self.page4_total_code.clear()
             self.load_data_to_table()
         else:
-            print("Код не может быть пустым")
+            pop_up_message("Код не может быть пустым", title="Ошибка", icon_path=resource_path("images/error3.png"))
 
     def add_code(self):
         code = self.page4_code.text()
@@ -637,7 +638,7 @@ class SettingsWindow(QWidget):
         row = self.page4_table.currentRow()
         if row != -1:
             code = self.page4_table.item(row, 0).text()
-            delete_from_json(resource_path("jsons/settings.json"), code)
+            delete_from_json(resource_path("jsons/codes.json"), code)
             self.load_data_to_table()
         else:
             pop_up_message("Нет выделенной строки", title="Ошибка", icon_path=resource_path("images/error4.png"))
@@ -647,10 +648,10 @@ class SettingsWindow(QWidget):
         self.page4_table.setRowCount(len(data))
         for i, code in enumerate(data):
             app = data[code]["app"]
-            time = data[code]["time"]
+            time1 = data[code]["time"]
             code_item = QTableWidgetItem(code)
             app_item = QTableWidgetItem(app)
-            time_item = QTableWidgetItem(time)
+            time_item = QTableWidgetItem(format_time(time1))
             self.page4_table.setItem(i, 0, code_item)
             self.page4_table.setItem(i, 1, app_item)
             self.page4_table.setItem(i, 2, time_item)

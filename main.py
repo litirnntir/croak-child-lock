@@ -1,16 +1,13 @@
 import json
 import multiprocessing
-import os
 
 import sys
 
 import telebot
 from PyQt6.QtWidgets import QApplication
 
-from MainWindow import MainWindow
+from MainWindow import MainWindow, bot
 from SystemFunctions import get_from_json, resource_path, apps_list, update_json, save_stats_to_file
-
-bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
 
 commands = [
     telebot.types.BotCommand(command="/add_code", description="Создать код"),
@@ -56,7 +53,7 @@ def get_code(message):
 
 @bot.message_handler(commands=["start"])
 def start_command(message):
-    file = open("croak-logo.png", "rb")
+    file = open(resource_path("images/croak-logo300.png"), "rb")
 
     bot.send_photo(message.chat.id, file,
                    caption=f"Добро пожаловать в Croak! Для настройки зайдите через приложение на компьютере")

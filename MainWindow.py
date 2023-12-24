@@ -1,3 +1,6 @@
+import multiprocessing.pool
+import sys
+
 import telebot
 
 from CodeWindow import CodeWindow
@@ -254,6 +257,7 @@ class MainWindow(QMainWindow):
         if ok and password == data["password"]:
             if self.settings_window:
                 self.settings_window.close()
+            bot.stop_bot()
             event.accept()
         else:
             event.ignore()

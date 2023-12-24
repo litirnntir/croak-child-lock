@@ -10,6 +10,10 @@ import osascript
 from cryptography.fernet import Fernet
 
 
+def format_time(seconds):
+    return f"{divmod(divmod(seconds, 3600)[0], 24)[1]:02}:{divmod(divmod(seconds, 3600)[1], 60)[0]:02}:{divmod(divmod(seconds, 3600)[1], 60)[1]:02}"
+
+
 def resource_path(relative_path):
     # Получаем абсолютный путь к ресурсам.
     try:
@@ -159,7 +163,7 @@ def save_stats_to_file(directory, stats_data):
     for app, time in data.items():
         ws.cell(row=row, column=1).value = app
         ws.cell(row=row,
-                column=2).value = f"{divmod(divmod(time, 3600)[0], 24)[1]:02}:{divmod(divmod(time, 3600)[1], 60)[0]:02}:{divmod(divmod(time, 3600)[1], 60)[1]:02}"
+                column=2).value = format_time(time)
         row += 1
 
     wb.save(directory)
