@@ -325,7 +325,6 @@ class MainWindow(QMainWindow):
     def update_data(self) -> None:
         """Главная функция обработки действий"""
         try:
-            # TODO: проверка на взлом файла
             utc_time = time.gmtime()  # текущее время, не зависит от устройства
             gmt4_time = time.gmtime(time.mktime(utc_time) + 8 * 3600)  # GMT+4
             # В определенное время сброс статистики, времени и отправка в телеграм
