@@ -331,10 +331,9 @@ class MainWindow(QMainWindow):
             # TODO: проверка на взлом файла
             utc_time = time.gmtime()  # текущее время, не зависит от устройства
             gmt4_time = time.gmtime(time.mktime(utc_time) + 8 * 3600)  # GMT+4
-
             # В определенное время сброс статистики, времени и отправка в телеграм
             if self.send_stats_time == time.strftime("%H:%M:%S", gmt4_time):
-                self.send_file_to_telegram()
+                self.send_stats_file_to_telegram()
                 update_json(resource_path("jsons/settings.json"), "total_time",
                             24 * 60 * 60)  # обновляем на 24 часа в нужное время
                 reset_json(resource_path("jsons/stats_apps.json"))

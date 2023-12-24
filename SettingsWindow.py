@@ -123,6 +123,9 @@ class SettingsWindow(QWidget):
 
         # 5 страница
 
+        self.time_send_label = QLabel("Выбрать время отправки статистики:", self.page1)
+        self.time_send_stats = QTimeEdit()
+        self.time_send_stats_button = QPushButton("Подтвердить")
         self.page5_bot_title = QLabel("Получите код из бота @croackchildlockbot по команде /id"
                                       " и впишите его в форму ниже")
         self.page5_code_edit = QLineEdit()
@@ -184,7 +187,7 @@ class SettingsWindow(QWidget):
         self.page4_delete.clicked.connect(self.delete_code)
 
         # 5 страница
-
+        self.time_send_stats_button.clicked.connect(self.change_send_time)
         self.page5_confirm_button.clicked.connect(self.code_update)
         self.page5_button.clicked.connect(self.save_stats_to_file)
         self.page5_send.clicked.connect(self.main_window.send_stats_file_to_telegram)
@@ -425,8 +428,14 @@ class SettingsWindow(QWidget):
         self.load_data_to_table()
 
     def ui_page5(self):
+        self.time_send_stats.setDisplayFormat("hh:mm:ss")
+        self.time_send_stats.setTime(QTime(0, 0))
         self.page5_bot_title.setStyleSheet("color: white; font-size: 24px; font-family: Oswald;")
         self.page5_code_edit.setFixedSize(800, 50)
+
+        self.time_send_stats_button.setFont(font_button)
+        self.time_send_stats_button.setStyleSheet(
+            "border-radius: 10px;color: rgb(255, 255, 255);background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:1.33, fx:0.5, fy:0.5, stop:0 rgba(26, 95, 146, 255), stop:1 rgba(255, 255, 255, 0));")
 
         self.page5_confirm_button.setFont(font_button)
         self.page5_confirm_button.setStyleSheet(
@@ -442,6 +451,8 @@ class SettingsWindow(QWidget):
         self.page5_send.setStyleSheet(
             "border-radius: 10px;color: rgb(255, 255, 255);background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:1.33, fx:0.5, fy:0.5, stop:0 rgba(26, 95, 146, 255), stop:1 rgba(255, 255, 255, 0));")
 
+        self.page5_layout.addWidget(self.time_send_stats)
+        self.page5_layout.addWidget(self.time_send_stats_button)
         self.page5_layout.addWidget(self.page5_title)
         self.page5_layout.addWidget(self.page5_button)
         self.page5_layout.addWidget(self.page5_send)
@@ -530,7 +541,8 @@ class SettingsWindow(QWidget):
         update_json(resource_path("jsons/blocked_apps_for_percents.json"), blocked_app, time_limit)
         self.update_limits_apps_table()
         self.main_window.update_from_json("blocked_apps")
-        pop_up_message(text=f"Лимит для {blocked_app} установлен", icon_path="check_icon.png", title="Успешно")
+        pop_up_message(text=f"Лимит для {blocked_app} установлен", icon_path=resource_path('images/success2.png'),
+                       title="Успешно")
 
     def update_limits_apps_table(self):
         data = get_from_json(resource_path("jsons/blocked_apps.json"))
@@ -605,7 +617,8 @@ class SettingsWindow(QWidget):
             seconds = hours * 3600 + minutes * 60
 
         if code:
-            pop_up_message("Код на общее время добавлен!", title="Успешно", icon_path=resource_path("images/success4.png"))
+            pop_up_message("Код на общее время добавлен!", title="Успешно",
+                           icon_path=resource_path("images/success4.png"))
             update_json(resource_path("jsons/codes.json"), code, {"app": "Общее время", "time": seconds})
             self.page4_total_code.clear()
             self.load_data_to_table()
@@ -674,3 +687,10 @@ class SettingsWindow(QWidget):
         stats = get_from_json(resource_path("jsons/stats_apps.json"))
         save_stats_to_file(self.directory + "/Статистика.xlsx", stats)
         pop_up_message('Статистика сохранена', title="Успешно!")
+
+    def change_send_time(self):
+        time_send_stats = self.time_send_stats.time().toString("hh:mm:ss")
+        update_json(resource_path("jsons/settings.json"), "send_stats_time", time_send_stats)
+        self.main_window.update_from_json("send_stats_time")
+        pop_up_message(text=f"Время автоматической отправки статистики изменено на: {time_send_stats}",
+                       icon_path=resource_path("images/success2.png"), title="Успешно")
