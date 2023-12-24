@@ -96,8 +96,10 @@ class SettingsWindow(QWidget):
         self.chart = QChart()
         self.color_button = QPushButton("Выбрать цвет фона")
         self.series = QPieSeries()
-        self.colors = [QColor(255, 0, 0), QColor(0, 255, 0), QColor(0, 0, 255), QColor(255, 255, 0),
-                       QColor(0, 255, 255)]
+        self.colors = [QColor(240, 128, 128), QColor(0, 250, 154), QColor(255, 182, 193),
+                       QColor(199, 21, 133), QColor(255, 140, 0), QColor(127, 255, 212), QColor(0, 0, 205),
+                       QColor(255, 240, 245), QColor(139, 69, 19), QColor(255, 255, 0), QColor(0, 128, 128),
+                       QColor(128, 128, 128)]
 
         self.chart_view = QChartView(self.chart)
         self.reset_button = QPushButton("Сбросить статистику")
@@ -420,7 +422,7 @@ class SettingsWindow(QWidget):
 
         self.page4.setLayout(self.page4_layout)
 
-        # self.p4_load_data()
+        self.load_data_to_table()
 
     def ui_page5(self):
         self.page5_bot_title.setStyleSheet("color: white; font-size: 24px; font-family: Oswald;")
@@ -605,7 +607,7 @@ class SettingsWindow(QWidget):
         if code:
             update_json(resource_path("jsons/codes.json"), code, {"app": "Общее врем", "time": seconds})
             self.page4_total_code.clear()
-            self.load_data_to_tsble()
+            self.load_data_to_table()
         else:
             print("Код не может быть пустым")
 
@@ -627,7 +629,7 @@ class SettingsWindow(QWidget):
         if code:
             update_json(resource_path("jsons/codes.json"), code, {"app": app, "time": seconds})
             self.page4_code.clear()
-            self.load_data_to_tsble()
+            self.load_data_to_table()
         else:
             pop_up_message("Код не может быть пустым", title="Ошибка", icon_path=resource_path("images/error3.png"))
 
@@ -636,11 +638,11 @@ class SettingsWindow(QWidget):
         if row != -1:
             code = self.page4_table.item(row, 0).text()
             delete_from_json(resource_path("jsons/settings.json"), code)
-            self.load_data_to_tsble()
+            self.load_data_to_table()
         else:
             pop_up_message("Нет выделенной строки", title="Ошибка", icon_path=resource_path("images/error4.png"))
 
-    def load_data_to_tsble(self):
+    def load_data_to_table(self):
         data = get_from_json(resource_path("jsons/codes.json"))
         self.page4_table.setRowCount(len(data))
         for i, code in enumerate(data):
