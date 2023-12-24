@@ -91,8 +91,6 @@ class SettingsWindow(QWidget):
         self.timer = QLCDNumber()
         self.timer_label = QLabel("Статистика за последние: ")
         self.timer_layout = QHBoxLayout()
-        self.timer_layout = QHBoxLayout()
-        self.timer_layout = QHBoxLayout()
         self.chart = QChart()
         self.color_button = QPushButton("Выбрать цвет фона")
         self.series = QPieSeries()
@@ -583,7 +581,6 @@ class SettingsWindow(QWidget):
 
     def update_diagram(self):
         stats = get_from_json(resource_path("jsons/stats_apps.json"))
-
         total_time = sum(stats.values())
 
         hours = total_time // 3600
