@@ -316,7 +316,7 @@ class MainWindow(QMainWindow):
             file.close()
             pop_up_message("Файл успешно отправлен!", icon_path=resource_path("images/success3.png"), title="Успешно!")
         except:
-            pop_up_message("Произошла ошибка. Возможно, вы не подключены к интернету",
+            pop_up_message("Произошла ошибка. Возможно, вы не подключены к интернету или указан неверный токен/айди",
                            icon_path=resource_path("images/error6.png"), title="Ошибка")
 
     def send_to_telegram(self, text="Текст") -> None:

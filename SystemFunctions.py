@@ -129,7 +129,6 @@ def get_active_app_name() -> str:
     return appPath
     """
     output = subprocess.check_output(["osascript", "-e", script])
-    # Извлекаем название папки из пути к приложению
     folder_name = output.strip().decode("utf-8").split("/")[-1].replace(".app", "")
     return folder_name
 
