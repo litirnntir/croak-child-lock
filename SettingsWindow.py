@@ -177,14 +177,14 @@ class SettingsWindow(QWidget):
 
         # 4 страница
 
-        self.page4_add.clicked.connect(self.p4_add_code)
-        self.page4_total_add.clicked.connect(self.p4_add_total_code)
-        self.page4_delete.clicked.connect(self.p4_delete_code)
+        self.page4_add.clicked.connect(self.add_code)
+        self.page4_total_add.clicked.connect(self.add_total_code)
+        self.page4_delete.clicked.connect(self.delete_code)
 
         # 5 страница
 
-        self.page5_confirm_button.clicked.connect(self.p5_confirm)
-        self.page5_button.clicked.connect(self.p5_save_stats_to_file)
+        self.page5_confirm_button.clicked.connect(self.code_update)
+        self.page5_button.clicked.connect(self.save_stats_to_file)
         self.page5_send.clicked.connect(self.main_window.send_stats_file_to_telegram)
 
         # Дизайн
@@ -590,7 +590,7 @@ class SettingsWindow(QWidget):
 
     # Страница 4
 
-    def p4_add_total_code(self):
+    def add_total_code(self):
         code = self.page4_total_code.text()
         time = self.page4_total_time.time().toString("hh:mm")
 
@@ -605,11 +605,11 @@ class SettingsWindow(QWidget):
         if code:
             update_json(resource_path("jsons/codes.json"), code, {"app": "Общее врем", "time": seconds})
             self.page4_total_code.clear()
-            self.p4_load_data()
+            self.load_data_to_tsble()
         else:
             print("Код не может быть пустым")
 
-    def p4_add_code(self):
+    def add_code(self):
         code = self.page4_code.text()
         app = self.page4_apps.currentText()
         time = self.page4_time.time().toString("hh:mm")
@@ -627,20 +627,20 @@ class SettingsWindow(QWidget):
         if code:
             update_json(resource_path("jsons/codes.json"), code, {"app": app, "time": seconds})
             self.page4_code.clear()
-            self.p4_load_data()
+            self.load_data_to_tsble()
         else:
             pop_up_message("Код не может быть пустым", title="Ошибка", icon_path=resource_path("images/error3.png"))
 
-    def p4_delete_code(self):
+    def delete_code(self):
         row = self.page4_table.currentRow()
         if row != -1:
             code = self.page4_table.item(row, 0).text()
             delete_from_json(resource_path("jsons/settings.json"), code)
-            self.p4_load_data()
+            self.load_data_to_tsble()
         else:
             pop_up_message("Нет выделенной строки", title="Ошибка", icon_path=resource_path("images/error4.png"))
 
-    def p4_load_data(self):
+    def load_data_to_tsble(self):
         data = get_from_json(resource_path("jsons/codes.json"))
         self.page4_table.setRowCount(len(data))
         for i, code in enumerate(data):
@@ -655,19 +655,19 @@ class SettingsWindow(QWidget):
 
     # Страница 5
 
-    def p5_confirm(self):
+    def code_update(self):
         # Получаем код из формы
         code = self.page5_code_edit.text()
         update_json(resource_path("jsons/settings.json"), "chat_id", code)
         pop_up_message("Код записан", title="Успешно", icon_path=resource_path("images/success4.png"))
 
-    def p5_total_app_time(self, app_dict):
+    def total_time_counter(self, app_dict):
         total_time = 0
         for app, time in app_dict.items():
             total_time += time
         return total_time
 
-    def p5_save_stats_to_file(self):
+    def save_stats_to_file(self):
         stats = get_from_json(resource_path("jsons/stats_apps.json"))
         save_stats_to_file(self.directory + "/Статистика.xlsx", stats)
         pop_up_message('Статистика сохранена', title="Успешно!")
