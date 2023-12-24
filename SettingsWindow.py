@@ -1,6 +1,6 @@
 import time
 
-from PyQt6.QtCharts import QChart, QChartView, QPieSeries
+from PyQt6.QtCharts import QChart, QChartView, QPieSeries, QPieSlice
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QColor, QPainter
 from PyQt6 import QtGui

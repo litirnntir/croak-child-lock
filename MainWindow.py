@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import QMainWindow, QInputDialog, QLineEdit
 from SystemFunctions import get_from_json, resource_path, get_active_app_name
 
 bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
-no_blocked_list = {"pycharm", "python", "Croak - Child Lock", "Finder", "Croak", "Python", "croak"}
+no_blocked_list = {"python", "Croak - Child Lock", "Finder", "Croak", "Python", "croak"}
 
 
 class MainWindow(QMainWindow):
