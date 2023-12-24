@@ -525,7 +525,7 @@ class SettingsWindow(QWidget):
                            title="Успешно")
             self.main_window.update_from_json("password")
         else:
-            pop_up_message(text="Неверный пароль! Попробуйте еще раз.",
+            pop_up_message(text="Неверный старый пароль! Попробуйте еще раз.",
                            icon_path=resource_path("images/error5.png"),
                            title="Ошибка")
 
