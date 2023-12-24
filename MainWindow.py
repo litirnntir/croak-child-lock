@@ -8,12 +8,12 @@ import time
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QBrush, QPalette, QPixmap
+from PyQt6.QtGui import QBrush, QPalette, QPixmap, QColor
 from PyQt6.QtWidgets import QMainWindow, QInputDialog, QLineEdit
 from SystemFunctions import get_from_json, resource_path, get_active_app_name
 
 bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
-no_blocked_list = ["pycharm", "python", "Croak - Child Lock", "Finder", "Croak", "Python"]
+no_blocked_list = {"pycharm", "python", "Croak - Child Lock", "Finder", "Croak", "Python", "croak"}
 
 
 class MainWindow(QMainWindow):
@@ -27,6 +27,9 @@ class MainWindow(QMainWindow):
 
         self.centralwidget = QtWidgets.QWidget(parent=self)
         self.centralwidget.setObjectName("centralwidget")
+
+        # Значение - нужно ли закрывать все приложения, если время закончилось
+        self.flag = True
 
         '''
         ОБЪЯВЛЕНИЕ
@@ -66,6 +69,8 @@ class MainWindow(QMainWindow):
         self.settings_window = None
         self.code_window = None
         self.break_json = None
+        color = QColor(255, 255, 255)
+        self.color_diagram = QBrush(color)
 
         '''
         КНОПКИ
@@ -284,6 +289,7 @@ class MainWindow(QMainWindow):
         if param == "total_time" or "total_time_for_percents":
             self.total_time = data["total_time"]
             self.total_time_for_percents = data["total_time"]
+            self.flag = True
         if param == "directory": self.directory = data["directory"]
         if param == "chat_id": self.chat_id = data["chat_id"]
         if param == "send_stats_time": self.send_stats_time = data["send_stats_time"]
@@ -396,16 +402,19 @@ class MainWindow(QMainWindow):
                     self.progress_bar_active_app.setProperty("value",
                                                              100 * self.total_time / self.total_time_for_percents)
                 self.progress_bar_all_time.setProperty("value", 100 * self.total_time / self.total_time_for_percents)
-
+            elif self.flag:
+                send_notification(f"Общее время вышло")
+                apps_list = get_open_apps()
+                for application in apps_list:
+                    if application not in no_blocked_list:
+                        close_app(application)
+                self.flag = False
             else:
-                if new_current_app != "Python" and new_current_app != "pycharm" and new_current_app != "Croak - Child Lock":
+                if new_current_app in no_blocked_list:
+                    pass
+                else:
                     send_notification(f"Общее время вышло. Вы больше не можете зайти в {new_current_app}")
                     close_app(new_current_app)
-                    apps_list = get_open_apps()
-                    for app in no_blocked_list:
-                        if app in apps_list: apps_list.remove(app)
-                    for application in apps_list:
-                        close_app(application)
 
         except:
             pass

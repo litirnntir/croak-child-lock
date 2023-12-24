@@ -11,7 +11,8 @@ from PyQt6.QtWidgets import QWidget, QPushButton, QStackedWidget, QVBoxLayout, Q
     QApplication, QTableWidgetItem, QColorDialog
 
 from PopUpMessages import pop_up_message
-from SystemFunctions import get_from_json, resource_path, apps_list, update_json, delete_from_json, reset_json
+from SystemFunctions import get_from_json, resource_path, apps_list, update_json, delete_from_json, reset_json, \
+    save_stats_to_file
 
 # Шрифт - кнопки
 font_button = QtGui.QFont()
@@ -170,21 +171,21 @@ class SettingsWindow(QWidget):
 
         # 3 страница
 
-        self.color_button.clicked.connect(self.p3_color_picker)
-        self.reset_button.clicked.connect(self.p2_reset_stats)
-        self.update_timer.timeout.connect(self.p3_update_data)
+        self.color_button.clicked.connect(self.color_diagram_picker)
+        self.reset_button.clicked.connect(self.reset_stats)
+        self.update_timer.timeout.connect(self.update_diagram)
 
         # 4 страница
 
-        # self.page4_add.clicked.connect(self.p4_add_code)
-        # self.page4_total_add.clicked.connect(self.p4_add_total_code)
-        # self.page4_delete.clicked.connect(self.p4_delete_code)
+        self.page4_add.clicked.connect(self.p4_add_code)
+        self.page4_total_add.clicked.connect(self.p4_add_total_code)
+        self.page4_delete.clicked.connect(self.p4_delete_code)
 
         # 5 страница
 
-        # self.page5_confirm_button.clicked.connect(self.p5_confirm)
-        # self.page5_button.clicked.connect(self.p5_save_stats_to_file)
-        # self.page5_send.clicked.connect(self.main_window.send_file_to_telegram)
+        self.page5_confirm_button.clicked.connect(self.p5_confirm)
+        self.page5_button.clicked.connect(self.p5_save_stats_to_file)
+        self.page5_send.clicked.connect(self.main_window.send_stats_file_to_telegram)
 
         # Дизайн
         self.ui()
@@ -340,6 +341,7 @@ class SettingsWindow(QWidget):
 
         self.chart.setTitle("Диаграмма")
         self.chart.setTitleFont(font_h1)
+        self.chart.setBackgroundBrush(self.main_window.color_diagram)
 
         self.color_button.setFont(font_button)
         self.color_button.setStyleSheet(
@@ -554,12 +556,13 @@ class SettingsWindow(QWidget):
 
     # Страница 3
 
-    def p3_color_picker(self):
+    def color_diagram_picker(self):
         color = QColorDialog.getColor()
         if color.isValid():
-            self.chart.setBackgroundBrush(QBrush(color))
+            self.main_window.color_diagram = QBrush(color)
+            self.chart.setBackgroundBrush(self.main_window.color_diagram)
 
-    def p3_update_data(self):
+    def update_diagram(self):
         stats = get_from_json(resource_path("jsons/stats_apps.json"))
 
         total_time = sum(stats.values())
@@ -580,10 +583,91 @@ class SettingsWindow(QWidget):
 
         self.chart.addSeries(self.series)
 
-    def p2_reset_stats(self):
+    def reset_stats(self):
         reset_json(resource_path("jsons/stats_apps.json"))
         self.series.clear()
         self.timer.display("00:00:00")
+
     # Страница 4
 
+    def p4_add_total_code(self):
+        code = self.page4_total_code.text()
+        time = self.page4_total_time.time().toString("hh:mm")
+
+        hours, minutes = time.split(":")
+        seconds = 0
+        hours = int(hours)
+        minutes = int(minutes)
+
+        if 0 <= hours <= 23 and 0 <= minutes <= 59:
+            seconds = hours * 3600 + minutes * 60
+
+        if code:
+            update_json(resource_path("jsons/codes.json"), code, {"app": "Общее врем", "time": seconds})
+            self.page4_total_code.clear()
+            self.p4_load_data()
+        else:
+            print("Код не может быть пустым")
+
+    def p4_add_code(self):
+        code = self.page4_code.text()
+        app = self.page4_apps.currentText()
+        time = self.page4_time.time().toString("hh:mm")
+
+        hours, minutes = time.split(":")
+        seconds = 0
+        hours = int(hours)
+        minutes = int(minutes)
+
+        # Перевод времени в секунды
+        if 0 <= hours <= 23 and 0 <= minutes <= 59:
+            seconds = hours * 3600 + minutes * 60
+
+        # Проверяем, что код не пустой
+        if code:
+            update_json(resource_path("jsons/codes.json"), code, {"app": app, "time": seconds})
+            self.page4_code.clear()
+            self.p4_load_data()
+        else:
+            pop_up_message("Код не может быть пустым", title="Ошибка", icon_path=resource_path("images/error3.png"))
+
+    def p4_delete_code(self):
+        row = self.page4_table.currentRow()
+        if row != -1:
+            code = self.page4_table.item(row, 0).text()
+            delete_from_json(resource_path("jsons/settings.json"), code)
+            self.p4_load_data()
+        else:
+            pop_up_message("Нет выделенной строки", title="Ошибка", icon_path=resource_path("images/error4.png"))
+
+    def p4_load_data(self):
+        data = get_from_json(resource_path("jsons/codes.json"))
+        self.page4_table.setRowCount(len(data))
+        for i, code in enumerate(data):
+            app = data[code]["app"]
+            time = data[code]["time"]
+            code_item = QTableWidgetItem(code)
+            app_item = QTableWidgetItem(app)
+            time_item = QTableWidgetItem(time)
+            self.page4_table.setItem(i, 0, code_item)
+            self.page4_table.setItem(i, 1, app_item)
+            self.page4_table.setItem(i, 2, time_item)
+
     # Страница 5
+
+    def p5_confirm(self):
+        # Получаем код из формы
+        code = self.page5_code_edit.text()
+        update_json(resource_path("jsons/settings.json"), "chat_id", code)
+        pop_up_message("Код записан", title="Успешно", icon_path=resource_path("images/success4.png"))
+
+    def p5_total_app_time(self, app_dict):
+        total_time = 0
+        for app, time in app_dict.items():
+            total_time += time
+        return total_time
+
+    def p5_save_stats_to_file(self):
+        stats = get_from_json(resource_path("jsons/stats_apps.json"))
+        save_stats_to_file(self.directory + "/Статистика.xlsx", stats)
+        pop_up_message('Статистика сохранена', title="Успешно!")
