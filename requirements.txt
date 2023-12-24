@@ -6,3 +6,5 @@ telebot~=0.0.5
 cryptography~=41.0.7
 pycryptodome==3.19.0
 osascript~=2020.12.3
+
+openpyxl~=3.1.2

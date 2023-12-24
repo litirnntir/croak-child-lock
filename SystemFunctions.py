@@ -10,11 +10,27 @@ import osascript
 from cryptography.fernet import Fernet
 
 
-def format_time(seconds):
+def format_time(seconds: int) -> str:
+    """Форматирует время в секундах в виде ЧЧ:ММ:СС.
+
+    Аргументы:
+        seconds: время в секундах, целое число.
+
+    Возвращает:
+        Строку, содержащую время в формате ЧЧ:ММ:СС.
+    """
     return f"{divmod(divmod(seconds, 3600)[0], 24)[1]:02}:{divmod(divmod(seconds, 3600)[1], 60)[0]:02}:{divmod(divmod(seconds, 3600)[1], 60)[1]:02}"
 
 
-def resource_path(relative_path):
+def resource_path(relative_path: str) -> str:
+    """Получает абсолютный путь к ресурсам.
+
+    Аргументы:
+        relative_path: относительный путь к ресурсу, строка.
+
+    Возвращает:
+        Абсолютный путь к ресурсу, строка.
+    """
     # Получаем абсолютный путь к ресурсам.
     try:
         # PyInstaller создает временную папку в _MEIPASS
@@ -154,7 +170,16 @@ def get_open_apps() -> list[str]:
     return output
 
 
-def save_stats_to_file(directory, stats_data):
+def save_stats_to_file(directory: str, stats_data: dict[str, any]) -> None:
+    """Сохраняет статистику по приложениям в файл Excel.
+
+    Аргументы:
+        directory: путь к файлу, в который нужно сохранить статистику.
+        stats_data: словарь, в котором ключи - названия приложений, а значения - время использования в секундах.
+
+    Возвращает:
+        None
+    """
     wb = openpyxl.Workbook()
     ws = wb.active
     data = stats_data
