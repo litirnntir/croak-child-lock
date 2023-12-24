@@ -123,12 +123,15 @@ def get_active_app_name() -> str:
     """Возвращает имя активного приложения на Mac OS"""
     script = """
     tell application "System Events"
-        set frontApp to name of first application process whose frontmost is true
+        set frontApp to first application process whose frontmost is true
+        set appPath to POSIX path of (frontApp's application file)
     end tell
-    return frontApp
+    return appPath
     """
     output = subprocess.check_output(["osascript", "-e", script])
-    return output.strip().decode("utf-8")
+    # Извлекаем название папки из пути к приложению
+    folder_name = output.strip().decode("utf-8").split("/")[-1].replace(".app", "")
+    return folder_name
 
 
 def send_notification(text: str) -> None:
