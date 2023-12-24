@@ -6,8 +6,10 @@ import sys
 import telebot
 from PyQt6.QtWidgets import QApplication
 
-from MainWindow import MainWindow, bot
+from MainWindow import MainWindow
 from SystemFunctions import get_from_json, resource_path, apps_list, update_json, save_stats_to_file
+
+bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
 
 commands = [
     telebot.types.BotCommand(command="/add_code", description="Создать код"),
@@ -92,11 +94,6 @@ def reset(message):
 
 def run_bot():
     bot.polling()
-
-
-def stop_bot():
-    bot_process.terminate()
-    print("Бот остановлен")
 
 
 def run_window():

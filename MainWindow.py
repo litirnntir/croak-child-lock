@@ -15,7 +15,6 @@ from PyQt6.QtGui import QBrush, QPalette, QPixmap, QColor
 from PyQt6.QtWidgets import QMainWindow, QInputDialog, QLineEdit
 from SystemFunctions import get_from_json, resource_path, get_active_app_name
 
-bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
 no_blocked_list = {"python", "Croak - Child Lock", "Finder", "Croak", "Python", "croak"}
 
 
@@ -245,6 +244,7 @@ class MainWindow(QMainWindow):
         :param event: событие закрытия
         :return: None
         """
+        bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
         dialog = QInputDialog(self)
         dialog.setWindowTitle("Подтверждение выхода")
         dialog.setLabelText("Введите пароль:")
@@ -308,6 +308,7 @@ class MainWindow(QMainWindow):
         Аргументы:
             file: имя файла, по умолчанию "Статистика.xlsx"
         """
+        bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
         save_stats_to_file(self.directory + "/" + self.file_stats_name,
                            get_from_json(resource_path("jsons/stats_apps.json")))
         # Открываем файл excel в режиме чтения
@@ -323,6 +324,7 @@ class MainWindow(QMainWindow):
         Аргументы:
             text: текст сообщения, по умолчанию "Текст"
         """
+        bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
         bot.send_message(self.chat_id, text)
 
     def update_data(self) -> None:
