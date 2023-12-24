@@ -126,7 +126,10 @@ class SettingsWindow(QWidget):
         self.time_send_label = QLabel("Выбрать время отправки статистики:", self.page1)
         self.time_send_stats = QTimeEdit()
         self.time_send_stats_button = QPushButton("Изменить время отправки")
-        self.page5_bot_title = QLabel("Получите код из бота @croackchildlockbot по команде /id"
+        self.page5_token_title = QLabel("Вставьте токен вашего бота в телеграм")
+        self.page5_token_edit = QLineEdit()
+        self.page5_token_button = QPushButton("Подтвердить")
+        self.page5_bot_title = QLabel("Получите код из вашего бота по команде /id"
                                       " и впишите его в форму ниже")
         self.page5_code_edit = QLineEdit()
         self.page5_confirm_button = QPushButton("Подтвердить")
@@ -187,8 +190,10 @@ class SettingsWindow(QWidget):
         self.page4_delete.clicked.connect(self.delete_code)
 
         # 5 страница
+        # TODO
+        self.page5_token_button.clicked.connect(self.add_token)
         self.time_send_stats_button.clicked.connect(self.change_send_time)
-        self.page5_confirm_button.clicked.connect(self.code_update)
+        self.page5_confirm_button.clicked.connect(self.chat_id_update)
         self.page5_button.clicked.connect(self.save_stats_to_file)
         self.page5_send.clicked.connect(self.main_window.send_stats_file_to_telegram)
 
@@ -428,12 +433,21 @@ class SettingsWindow(QWidget):
         self.load_data_to_table()
 
     def ui_page5(self):
+
+        self.page5_token_title.setStyleSheet("color: white; font-size: 24px; font-family: Oswald;")
+
+        self.page5_token_edit.setFixedSize(800, 30)
+
+        self.page5_token_button.setFont(font_button)
+        self.page5_token_button.setStyleSheet(
+            "border-radius: 10px;color: rgb(255, 255, 255);background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:1.33, fx:0.5, fy:0.5, stop:0 rgba(26, 95, 146, 255), stop:1 rgba(255, 255, 255, 0));")
+
         self.time_send_label_time.setStyleSheet("color: white; font-size: 24px; font-family: Oswald;")
 
         self.time_send_stats.setDisplayFormat("hh:mm:ss")
         self.time_send_stats.setTime(QTime(0, 0))
         self.page5_bot_title.setStyleSheet("color: white; font-size: 24px; font-family: Oswald;")
-        self.page5_code_edit.setFixedSize(800, 50)
+        self.page5_code_edit.setFixedSize(800, 30)
 
         self.time_send_stats_button.setFont(font_button)
         self.time_send_stats_button.setStyleSheet(
@@ -459,6 +473,9 @@ class SettingsWindow(QWidget):
         self.page5_layout.addWidget(self.page5_title)
         self.page5_layout.addWidget(self.page5_button)
         self.page5_layout.addWidget(self.page5_send)
+        self.page5_layout.addWidget(self.page5_token_title)
+        self.page5_layout.addWidget(self.page5_token_edit)
+        self.page5_layout.addWidget(self.page5_token_button)
         self.page5_layout.addWidget(self.page5_bot_title)
         self.page5_layout.addWidget(self.page5_code_edit)
         self.page5_layout.addWidget(self.page5_confirm_button)
@@ -522,7 +539,6 @@ class SettingsWindow(QWidget):
         self.directory = QFileDialog.getExistingDirectory(self, "Выберите директорию")
         self.directory_label.setText(f"Директория для сохранения статистики: {self.directory}")
         update_json(resource_path("jsons/settings.json"), "directory", self.directory)
-        print(get_from_json(resource_path("jsons/settings.json")))
         self.main_window.update_from_json("directory")
 
     def closeEvent(self, event) -> None:
@@ -673,10 +689,11 @@ class SettingsWindow(QWidget):
 
     # Страница 5
 
-    def code_update(self):
+    def chat_id_update(self):
         # Получаем код из формы
         code = self.page5_code_edit.text()
         update_json(resource_path("jsons/settings.json"), "chat_id", code)
+        self.main_window.update_from_json("chat_id")
         pop_up_message("Код записан", title="Успешно", icon_path=resource_path("images/success4.png"))
 
     def total_time_counter(self, app_dict):
@@ -698,3 +715,10 @@ class SettingsWindow(QWidget):
             f"Время отправки: {(get_from_json(resource_path('jsons/settings.json')))['send_stats_time']}")
         pop_up_message(text=f"Время автоматической отправки статистики изменено на: {time_send_stats}",
                        icon_path=resource_path("images/success2.png"), title="Успешно")
+
+    def add_token(self):
+        token = self.page5_code_edit.text()
+        update_json(resource_path("jsons/settings.json"), "TOKEN", token)
+        self.main_window.update_from_json("TOKEN")
+        pop_up_message("Токен записан", title="Успешно", icon_path=resource_path("images/success2.png"))
+

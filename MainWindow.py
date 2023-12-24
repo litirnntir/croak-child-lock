@@ -8,8 +8,8 @@ import time
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QBrush, QPalette, QPixmap, QColor
-from PyQt6.QtWidgets import QMainWindow, QInputDialog, QLineEdit
+from PyQt6.QtGui import QBrush, QPalette, QPixmap, QColor, QIcon
+from PyQt6.QtWidgets import QMainWindow, QInputDialog, QLineEdit, QSystemTrayIcon, QMenu
 from SystemFunctions import get_from_json, resource_path, get_active_app_name
 
 bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
@@ -291,6 +291,7 @@ class MainWindow(QMainWindow):
             self.total_time_for_percents = data["total_time"]
             self.flag = True
         if param == "directory": self.directory = data["directory"]
+        if param == "TOKEN": self.directory = data["TOKEN"]
         if param == "chat_id": self.chat_id = data["chat_id"]
         if param == "send_stats_time": self.send_stats_time = data["send_stats_time"]
         if param == "blocked_apps" or "blocked_apps_for_percents":
@@ -357,7 +358,6 @@ class MainWindow(QMainWindow):
                     if self.active_app in self.blocked_apps:
                         update_json(resource_path("jsons/blocked_apps.json"), self.active_app, self.time_left_block_app)
                         self.blocked_apps = get_from_json(resource_path("jsons/blocked_apps.json"))
-                        print(get_from_json(resource_path("jsons/blocked_apps.json")))
                     # Обновляем текущее приложение
                     self.active_app = new_current_app
                     # Если текущее зблокировано, проверяем, осталось ли время. Если не осталось - закрываем
@@ -371,7 +371,6 @@ class MainWindow(QMainWindow):
                         else:
                             self.time_left_block_app = self.blocked_apps[new_current_app]
                             self.time_left_block_app -= 1
-                            print(self.time_left_block_app)
                     else:
                         self.time_left_block_app = self.total_time
                 # Если текущее приложение не поменялось

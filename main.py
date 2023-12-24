@@ -104,13 +104,13 @@ def run_window():
 
 
 if __name__ == '__main__':
-    multiprocessing.freeze_support()
-    bot_process = multiprocessing.Process(target=run_bot)
-    multiprocessing.freeze_support()
-    open_window_process = multiprocessing.Process(target=run_window)
+        multiprocessing.freeze_support()
+        bot_process = multiprocessing.Process(target=run_bot)
+        multiprocessing.freeze_support()
+        open_window_process = multiprocessing.Process(target=run_window)
 
-    bot_process.start()
-    open_window_process.start()
+        bot_process.start()
+        open_window_process.start()
 
-    bot_process.join()
-    open_window_process.join()
+        bot_process.join()
+        open_window_process.join()
