@@ -305,14 +305,19 @@ class MainWindow(QMainWindow):
         Аргументы:
             file: имя файла, по умолчанию "Статистика.xlsx"
         """
-        save_stats_to_file(self.directory + "/" + self.file_stats_name,
-                           get_from_json(resource_path("jsons/stats_apps.json")))
-        # Открываем файл excel в режиме чтения
-        file = open(resource_path(self.directory + "/" + self.file_stats_name), "rb")
-        # Отправляем файл по chat_id
-        bot.send_document(self.chat_id, file)
-        # Закрываем файл
-        file.close()
+        try:
+            save_stats_to_file(self.directory + "/" + self.file_stats_name,
+                               get_from_json(resource_path("jsons/stats_apps.json")))
+            # Открываем файл excel в режиме чтения
+            file = open(resource_path(self.directory + "/" + self.file_stats_name), "rb")
+            # Отправляем файл по chat_id
+            bot.send_document(self.chat_id, file)
+            # Закрываем файл
+            file.close()
+            pop_up_message("Файл успешно отправлен!", icon_path=resource_path("images/success3.png"), title="Успешно!")
+        except:
+            pop_up_message("Произошла ошибка. Возможно, вы не подключены к интернету",
+                           icon_path=resource_path("images/error6.png"), title="Ошибка")
 
     def send_to_telegram(self, text="Текст") -> None:
         """Отправляет текстовое сообщение в телеграм по chat_id

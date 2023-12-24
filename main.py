@@ -9,7 +9,9 @@ from PyQt6.QtWidgets import QApplication
 from MainWindow import MainWindow
 from SystemFunctions import get_from_json, resource_path, apps_list, update_json, save_stats_to_file
 
-bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
+try:
+    bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
+except:pass
 
 commands = [
     telebot.types.BotCommand(command="/add_code", description="Создать код"),
@@ -18,7 +20,9 @@ commands = [
     telebot.types.BotCommand(command="/stats", description="Получить статистику")
 ]
 
-bot.set_my_commands(commands)
+try:
+    bot.set_my_commands(commands)
+except:pass
 
 
 def app_exists(app):
@@ -104,13 +108,18 @@ def run_window():
 
 
 if __name__ == '__main__':
+    multiprocessing.freeze_support()
+    open_window_process = multiprocessing.Process(target=run_window)
+    try:
         multiprocessing.freeze_support()
         bot_process = multiprocessing.Process(target=run_bot)
-        multiprocessing.freeze_support()
-        open_window_process = multiprocessing.Process(target=run_window)
 
         bot_process.start()
-        open_window_process.start()
+    except:
+        pass
+    open_window_process.start()
 
+    try:
         bot_process.join()
-        open_window_process.join()
+    except:pass
+    open_window_process.join()

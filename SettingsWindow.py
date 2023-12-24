@@ -190,7 +190,6 @@ class SettingsWindow(QWidget):
         self.page4_delete.clicked.connect(self.delete_code)
 
         # 5 страница
-        # TODO
         self.page5_token_button.clicked.connect(self.add_token)
         self.time_send_stats_button.clicked.connect(self.change_send_time)
         self.page5_confirm_button.clicked.connect(self.chat_id_update)
