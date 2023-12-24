@@ -286,7 +286,7 @@ class MainWindow(QMainWindow):
         """Обновляет настройки из файла jsons/settings.json"""
         data = get_from_json(resource_path("jsons/settings.json"))
         if param == "password": self.password = data["password"]
-        if param == "total_time" or "total_time_for_percents":
+        if param == "total_time" or param == "total_time_for_percents":
             self.total_time = data["total_time"]
             self.total_time_for_percents = data["total_time"]
             self.flag = True
@@ -294,7 +294,7 @@ class MainWindow(QMainWindow):
         if param == "TOKEN": self.directory = data["TOKEN"]
         if param == "chat_id": self.chat_id = data["chat_id"]
         if param == "send_stats_time": self.send_stats_time = data["send_stats_time"]
-        if param == "blocked_apps" or "blocked_apps_for_percents":
+        if param == "blocked_apps" or param == "blocked_apps_for_percents":
             self.blocked_apps = get_from_json(resource_path("jsons/blocked_apps.json"))
             self.blocked_apps_for_percents = get_from_json(
                 resource_path("jsons/blocked_apps_for_percents.json"))  # для прогресс бара
@@ -335,8 +335,9 @@ class MainWindow(QMainWindow):
             # В определенное время сброс статистики, времени и отправка в телеграм
             if self.send_stats_time == time.strftime("%H:%M:%S", gmt4_time):
                 self.send_stats_file_to_telegram()
+                # TODO: выбор лимита после сброса
                 update_json(resource_path("jsons/settings.json"), "total_time",
-                            24 * 60 * 60)  # обновляем на 24 часа в нужное время
+                            12 * 60 * 60)  # обновляем на 12 часов в нужное время
                 reset_json(resource_path("jsons/stats_apps.json"))
             # Меняем активное приложение
             new_current_app = get_active_app_name()
@@ -421,6 +422,5 @@ class MainWindow(QMainWindow):
                 else:
                     send_notification(f"Общее время вышло. Вы больше не можете зайти в {new_current_app}")
                     close_app(new_current_app)
-
         except:
             pass
