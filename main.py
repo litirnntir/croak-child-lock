@@ -107,10 +107,10 @@ if __name__ == '__main__':
     multiprocessing.freeze_support()
     bot_process = multiprocessing.Process(target=run_bot)
     multiprocessing.freeze_support()
-    time_process = multiprocessing.Process(target=run_window)
+    open_window_process = multiprocessing.Process(target=run_window)
 
     bot_process.start()
-    time_process.start()
+    open_window_process.start()
 
     bot_process.join()
-    time_process.join()
+    open_window_process.join()
