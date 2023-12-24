@@ -8,10 +8,10 @@ from PyQt6.QtCore import Qt, QTime
 from PyQt6.QtGui import QPixmap, QPalette, QBrush
 from PyQt6.QtWidgets import QWidget, QPushButton, QStackedWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, \
     QFormLayout, QSpinBox, QComboBox, QTimeEdit, QTableWidget, QHeaderView, QAbstractItemView, QLCDNumber, QFileDialog, \
-    QApplication, QTableWidgetItem
+    QApplication, QTableWidgetItem, QColorDialog
 
 from PopUpMessages import pop_up_message
-from SystemFunctions import get_from_json, resource_path, apps_list, update_json, delete_from_json
+from SystemFunctions import get_from_json, resource_path, apps_list, update_json, delete_from_json, reset_json
 
 # Шрифт - кнопки
 font_button = QtGui.QFont()
@@ -121,7 +121,7 @@ class SettingsWindow(QWidget):
         # 5 страница
 
         self.page5_bot_title = QLabel("Получите код из бота @croackchildlockbot по команде /id"
-                                      "и впишите его в форму ниже")
+                                      " и впишите его в форму ниже")
         self.page5_code_edit = QLineEdit()
         self.page5_confirm_button = QPushButton("Подтвердить")
         self.page5_title = QLabel("Сохранить или отправить статистику")
@@ -170,9 +170,9 @@ class SettingsWindow(QWidget):
 
         # 3 страница
 
-        # self.color_button.clicked.connect(self.p3_color_picker)
-        # self.reset_button.clicked.connect(self.p2_reset_stats)
-        # self.update_timer.timeout.connect(self.p3_update_data)
+        self.color_button.clicked.connect(self.p3_color_picker)
+        self.reset_button.clicked.connect(self.p2_reset_stats)
+        self.update_timer.timeout.connect(self.p3_update_data)
 
         # 4 страница
 
@@ -553,6 +553,37 @@ class SettingsWindow(QWidget):
         self.main_window.update_from_json("blocked_apps")
 
     # Страница 3
+
+    def p3_color_picker(self):
+        color = QColorDialog.getColor()
+        if color.isValid():
+            self.chart.setBackgroundBrush(QBrush(color))
+
+    def p3_update_data(self):
+        stats = get_from_json(resource_path("jsons/stats_apps.json"))
+
+        total_time = sum(stats.values())
+
+        hours = total_time // 3600
+        minutes = (total_time % 3600) // 60
+        seconds = total_time % 60
+        time_str = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+        self.timer.display(time_str)
+
+        self.series.clear()
+
+        for i, (app, time_spend) in enumerate(stats.items()):
+            percentage = round(time_spend / total_time * 100, 2)
+            self.series.append(f"{app} ({percentage}%)", time_spend)
+            self.series.slices()[i].setBrush(self.colors[i % len(self.colors)])
+
+        self.chart.addSeries(self.series)
+
+    def p2_reset_stats(self):
+        reset_json(resource_path("jsons/stats_apps.json"))
+        self.series.clear()
+        self.timer.display("00:00:00")
     # Страница 4
 
     # Страница 5
