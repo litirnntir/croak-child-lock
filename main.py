@@ -11,7 +11,8 @@ from SystemFunctions import get_from_json, resource_path, apps_list, update_json
 
 try:
     bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
-except:pass
+except:
+    pass
 
 commands = [
     telebot.types.BotCommand(command="/add_code", description="Создать код"),
@@ -22,7 +23,8 @@ commands = [
 
 try:
     bot.set_my_commands(commands)
-except:pass
+except:
+    pass
 
 
 def app_exists(app):
@@ -121,5 +123,6 @@ if __name__ == '__main__':
 
     try:
         bot_process.join()
-    except:pass
+    except:
+        pass
     open_window_process.join()

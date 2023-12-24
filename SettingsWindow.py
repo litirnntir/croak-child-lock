@@ -94,10 +94,10 @@ class SettingsWindow(QWidget):
         self.chart = QChart()
         self.color_button = QPushButton("Выбрать цвет фона")
         self.series = QPieSeries()
-        self.colors = [QColor(173, 255, 47), QColor(32, 178, 170), QColor(0, 255, 127),
-                       QColor(46, 139, 87), QColor(0, 128, 0), QColor(0, 100, 0), QColor(102, 205, 170),
-                       QColor(0, 255, 255), QColor(30, 144, 255), QColor(0, 0, 205), QColor(25, 25, 112),
-                       QColor(128, 128, 128)]
+        self.colors = [QColor(55, 192, 203), QColor(102, 205, 170), QColor(220, 20, 60),
+                       QColor(72, 61, 139), QColor(0, 128, 128), QColor(119, 136, 153), QColor(139, 69, 19),
+                       QColor(75, 0, 130), QColor(240, 230, 140), QColor(255, 20, 147), QColor(135, 206, 235),
+                       QColor(250, 235, 215)]
 
         self.chart_view = QChartView(self.chart)
         self.reset_button = QPushButton("Сбросить статистику")
