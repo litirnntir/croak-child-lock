@@ -82,7 +82,7 @@ class SettingsWindow(QWidget):
         self.combo = QComboBox()
         self.time = QTimeEdit()
         self.set_limit = QPushButton("Установить лимит")
-        self.table = QTableWidget()
+        self.table_apps_limits = QTableWidget()
         self.delete = QPushButton("Удалить лимит")
 
         # 3 страница
@@ -313,17 +313,17 @@ class SettingsWindow(QWidget):
 
         self.page2_layout.addWidget(self.set_limit)
 
-        self.table.setColumnCount(2)
-        self.table.setHorizontalHeaderLabels(["Приложение", "Время"])
-        self.table.horizontalHeader().setSectionResizeMode(
+        self.table_apps_limits.setColumnCount(2)
+        self.table_apps_limits.setHorizontalHeaderLabels(["Приложение", "Время"])
+        self.table_apps_limits.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeMode.Stretch)
-        self.table.setSelectionBehavior(
+        self.table_apps_limits.setSelectionBehavior(
             QAbstractItemView.SelectionBehavior.SelectRows)
-        self.table.setSelectionMode(
+        self.table_apps_limits.setSelectionMode(
             QAbstractItemView.SelectionMode.SingleSelection)
-        self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.table_apps_limits.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
-        self.page2_layout.addWidget(self.table)
+        self.page2_layout.addWidget(self.table_apps_limits)
 
         self.delete.setFont(font_button)
         self.delete.setStyleSheet(
@@ -551,7 +551,7 @@ class SettingsWindow(QWidget):
 
     def update_limits_apps_table(self):
         data = get_from_json(resource_path("jsons/blocked_apps.json"))
-        self.table.setRowCount(len(data))
+        self.table_apps_limits.setRowCount(len(data))
         row = 0
         for blocked_app, time_limit in data.items():
             app_item = QTableWidgetItem(blocked_app)
@@ -559,14 +559,14 @@ class SettingsWindow(QWidget):
             m, s = divmod(m, 60)
             time_str = f'{h:02d}:{m:02d}'
             time_item = QTableWidgetItem(time_str)
-            self.table.setItem(row, 0, app_item)
-            self.table.setItem(row, 1, time_item)
+            self.table_apps_limits.setItem(row, 0, app_item)
+            self.table_apps_limits.setItem(row, 1, time_item)
             row += 1
 
     def delete_clicked_limit(self):
-        row = self.table.currentRow()
+        row = self.table_apps_limits.currentRow()
         if row != -1:
-            app = self.table.item(row, 0).text()
+            app = self.table_apps_limits.item(row, 0).text()
 
             delete_from_json(resource_path("jsons/blocked_apps.json"), app)
             delete_from_json(resource_path("jsons/blocked_apps_for_percents.json"), app)

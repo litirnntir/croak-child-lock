@@ -1,6 +1,3 @@
-import multiprocessing.pool
-import sys
-
 import telebot
 
 from CodeWindow import CodeWindow
@@ -15,6 +12,7 @@ from PyQt6.QtGui import QBrush, QPalette, QPixmap, QColor
 from PyQt6.QtWidgets import QMainWindow, QInputDialog, QLineEdit
 from SystemFunctions import get_from_json, resource_path, get_active_app_name
 
+bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
 no_blocked_list = {"python", "Croak - Child Lock", "Finder", "Croak", "Python", "croak"}
 
 
@@ -244,7 +242,6 @@ class MainWindow(QMainWindow):
         :param event: событие закрытия
         :return: None
         """
-        bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
         dialog = QInputDialog(self)
         dialog.setWindowTitle("Подтверждение выхода")
         dialog.setLabelText("Введите пароль:")
@@ -257,7 +254,6 @@ class MainWindow(QMainWindow):
         if ok and password == data["password"]:
             if self.settings_window:
                 self.settings_window.close()
-            bot.stop_bot()
             event.accept()
         else:
             event.ignore()
@@ -308,7 +304,6 @@ class MainWindow(QMainWindow):
         Аргументы:
             file: имя файла, по умолчанию "Статистика.xlsx"
         """
-        bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
         save_stats_to_file(self.directory + "/" + self.file_stats_name,
                            get_from_json(resource_path("jsons/stats_apps.json")))
         # Открываем файл excel в режиме чтения
@@ -324,7 +319,6 @@ class MainWindow(QMainWindow):
         Аргументы:
             text: текст сообщения, по умолчанию "Текст"
         """
-        bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
         bot.send_message(self.chat_id, text)
 
     def update_data(self) -> None:
@@ -361,10 +355,13 @@ class MainWindow(QMainWindow):
                     self.time_spent = 0
                     # Обновляем значение в файле, если предыдущее заблокировано
                     if self.active_app in self.blocked_apps:
-                        update_json(resource_path("jsons/stats_apps.json"), self.active_app, self.time_left_block_app)
+                        update_json(resource_path("jsons/blocked_apps.json"), self.active_app, self.time_left_block_app)
+                        self.blocked_apps = get_from_json(resource_path("jsons/blocked_apps.json"))
+                        print(get_from_json(resource_path("jsons/blocked_apps.json")))
                     # Обновляем текущее приложение
                     self.active_app = new_current_app
                     # Если текущее зблокировано, проверяем, осталось ли время. Если не осталось - закрываем
+
                     if self.active_app in self.blocked_apps:
                         if self.blocked_apps[self.active_app] <= 1:
                             close_app(new_current_app)
@@ -374,6 +371,7 @@ class MainWindow(QMainWindow):
                         else:
                             self.time_left_block_app = self.blocked_apps[new_current_app]
                             self.time_left_block_app -= 1
+                            print(self.time_left_block_app)
                     else:
                         self.time_left_block_app = self.total_time
                 # Если текущее приложение не поменялось
