@@ -26,6 +26,7 @@ a = Analysis(['main.py'],
                     ('/Users/aleksandragorbuncova/PycharmProjects/croak-child-lock/images/success5.png', 'images'),
                     ('/Users/aleksandragorbuncova/PycharmProjects/croak-child-lock/images/success6.png', 'images'),
                     ('/Users/aleksandragorbuncova/PycharmProjects/croak-child-lock/images/croak-logo.png', 'images'),
+                    ('/Users/aleksandragorbuncova/PycharmProjects/croak-child-lock/images/croak-logo300.png', 'images'),
                     ('/Users/aleksandragorbuncova/PycharmProjects/croak-child-lock/key.key', '.')],
 
              hiddenimports=['PyQt6.Qt6Svg', 'PyQt6.Qt6Widgets', 'PyQt6.Qt6Gui', 'PyQt6.QtCore', 'PyQt6.QtWidgets'],
