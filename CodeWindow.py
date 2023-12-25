@@ -1,7 +1,7 @@
 from PyQt6 import QtWidgets
 
 from PopUpMessages import pop_up_message
-from SystemFunctions import resource_path, get_from_json, update_json
+from SystemFunctions import resource_path, get_from_json, update_json, delete_from_json
 
 
 class CodeWindow(QtWidgets.QDialog):
@@ -31,6 +31,7 @@ class CodeWindow(QtWidgets.QDialog):
                 update_json(resource_path("jsons/blocked_apps.json"), codes[code]["app"], time_limit)
                 update_json(resource_path("jsons/blocked_apps_for_percents.json"), codes[code]["app"], time_limit)
                 self.main_window.update_from_json("blocked_apps")
+                delete_from_json(resource_path("jsons/codes.json"), code)
                 pop_up_message(f"Код |{code}| применен", resource_path("images/success6.png"), "Успешно")
             else:
                 if codes[code]["app"] == "Общее время":
