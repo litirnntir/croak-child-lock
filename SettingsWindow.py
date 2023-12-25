@@ -763,3 +763,4 @@ class SettingsWindow(QWidget):
         update_json(resource_path("jsons/settings.json"), "TOKEN", token)
         self.main_window.update_from_json("TOKEN")
         pop_up_message("Токен записан", title="Успешно", icon_path=resource_path("images/success2.png"))
+

@@ -21,7 +21,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        update_json(resource_path("jsons/settings.json"), "total_time", 86400)
+        update_json(resource_path("jsons/settings.json"), "total_time",
+                    get_from_json(resource_path("jsons/settings.json"))["total_time_after_reset"])
 
         settings = get_from_json(resource_path("jsons/settings.json"))
         stats_apps = get_from_json(resource_path("jsons/stats_apps.json"))
@@ -54,7 +55,7 @@ class MainWindow(QMainWindow):
         self.stats_apps = stats_apps
         self.timer = QTimer()
         # Из настроек
-        self.total_time = settings['total_time_after_reset']
+        self.total_time = settings['total_time']
         self.token = settings["TOKEN"]
         self.password = settings['password']
         self.chat_id = settings['chat_id']
