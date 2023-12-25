@@ -518,6 +518,7 @@ class SettingsWindow(QWidget):
         else:
             pop_up_message(text=f"Лимит не может быть меньше минуты", icon_path=resource_path("images/error3.png"),
                            title="Ошибка")
+        self.time_spinbox_after_reset.setTime(QTime(0, 0))
 
     def change_time_limit(self) -> None:
         """Выбирает новое время из спинбокса и обновляет настройки
@@ -541,6 +542,7 @@ class SettingsWindow(QWidget):
         else:
             pop_up_message(text=f"Лимит не может быть меньше минуты", icon_path=resource_path("images/error3.png"),
                            title="Ошибка")
+        self.time_spinbox.setTime(QTime(0, 0))
 
     def change_password(self) -> None:
         """Изменяет пароль, если старый пароль совпадает с данными из файла jsons/settings.json
@@ -597,6 +599,7 @@ class SettingsWindow(QWidget):
         self.main_window.update_from_json("blocked_apps")
         pop_up_message(text=f"Лимит для {blocked_app} установлен", icon_path=resource_path('images/success2.png'),
                        title="Успешно")
+        self.time.setTime(QTime(0, 0))
 
     def update_limits_apps_table(self):
         data = get_from_json(resource_path("jsons/blocked_apps.json"))
@@ -669,14 +672,15 @@ class SettingsWindow(QWidget):
         if 0 <= hours <= 23 and 0 <= minutes <= 59:
             seconds = hours * 3600 + minutes * 60
 
-        if code:
+        if code and seconds > 0:
             pop_up_message("Код на общее время добавлен!", title="Успешно",
                            icon_path=resource_path("images/success4.png"))
             update_json(resource_path("jsons/codes.json"), code, {"app": "Общее время", "time": seconds})
             self.page4_total_code.clear()
             self.load_data_to_table()
         else:
-            pop_up_message("Код не может быть пустым", title="Ошибка", icon_path=resource_path("images/error3.png"))
+            pop_up_message("Код не может быть пустым или добавлять 0", title="Ошибка", icon_path=resource_path("images/error3.png"))
+        self.page4_total_time.setTime(QTime(0, 0))  # Устанавливаем начальное время 00:00
 
     def add_code(self):
         code = self.page4_code.text()
@@ -693,12 +697,15 @@ class SettingsWindow(QWidget):
             seconds = hours * 3600 + minutes * 60
 
         # Проверяем, что код не пустой
-        if code:
+        if code and seconds > 0:
             update_json(resource_path("jsons/codes.json"), code, {"app": app, "time": seconds})
             self.page4_code.clear()
             self.load_data_to_table()
+            pop_up_message(f"Код на {app} добавлен!", title="Успешно",
+                           icon_path=resource_path("images/success3.png"))
         else:
-            pop_up_message("Код не может быть пустым", title="Ошибка", icon_path=resource_path("images/error3.png"))
+            pop_up_message("Код не может быть пустым или добавлять 0", title="Ошибка", icon_path=resource_path("images/error3.png"))
+        self.page4_time.setTime(QTime(0, 0))
 
     def delete_code(self):
         row = self.page4_table.currentRow()
