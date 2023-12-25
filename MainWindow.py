@@ -398,7 +398,11 @@ class MainWindow(QMainWindow):
 
                 # Меняем время в интерфейсе
                 self.time_all_time.setText(time.strftime("%H:%M:%S", time.gmtime(self.total_time)))
-                self.time_active_app.setText(time.strftime("%H:%M:%S", time.gmtime(self.time_left_block_app)))
+                # Проверка, меньше ли время приложения, чем общее
+                if self.time_left_block_app < self.total_time:
+                    self.time_active_app.setText(time.strftime("%H:%M:%S", time.gmtime(self.time_left_block_app)))
+                else:
+                    self.time_active_app.setText(time.strftime("%H:%M:%S", time.gmtime(self.total_time)))
 
                 # Прогресс бар
                 if self.active_app in self.blocked_apps and self.time_left_block_app < self.total_time:
