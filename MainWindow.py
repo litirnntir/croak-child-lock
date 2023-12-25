@@ -21,6 +21,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        print(get_from_json("jsons/settings.json"))
+
         update_json(resource_path("jsons/settings.json"), "total_time",
                     get_from_json(resource_path("jsons/settings.json"))["total_time_after_reset"])
 
