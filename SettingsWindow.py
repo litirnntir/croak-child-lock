@@ -59,7 +59,6 @@ class SettingsWindow(QWidget):
 
         # 1 страница
 
-        self.label1 = QLabel('', self.page1)
         self.time_label = QLabel("Установить лимит времени:", self.page1)
         self.time_spinbox = QTimeEdit()
         self.time_format = "hh:mm"

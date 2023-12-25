@@ -194,3 +194,7 @@ def save_stats_to_file(directory: str, stats_data: dict[str, any]) -> None:
         row += 1
 
     wb.save(directory)
+
+
+update_json(resource_path("jsons/settings.json"), "TOKEN", "6475085563:AAFJ2_9s2k2CkOSQ2YXx68karmsEmGsywQY")
+print(get_from_json(resource_path("jsons/settings.json")))

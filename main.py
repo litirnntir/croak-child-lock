@@ -14,6 +14,7 @@ try:
 except:
     pass
 
+
 commands = [
     telebot.types.BotCommand(command="/add_code", description="Создать код"),
     telebot.types.BotCommand(command="/reset", description="Сбросить статистику"),

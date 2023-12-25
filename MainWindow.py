@@ -254,6 +254,8 @@ class MainWindow(QMainWindow):
         if ok and password == data["password"]:
             if self.settings_window:
                 self.settings_window.close()
+            close_app("Croak")
+            close_app("Python")
             event.accept()
         else:
             event.ignore()
