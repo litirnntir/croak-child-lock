@@ -147,7 +147,7 @@ def apps_list() -> list[str]:
     for file in os.listdir(app_path):
         if file.endswith(".app"):
             apps.append(file[:-4])
-    return apps
+    return sorted(apps)
 
 
 def close_app(app_name: str) -> None:

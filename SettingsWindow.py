@@ -1,11 +1,7 @@
-import time
-
-from PyQt6.QtCharts import QChart, QChartView, QPieSeries, QPieSlice
-from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QColor, QPainter
 from PyQt6 import QtGui
-from PyQt6.QtCore import Qt, QTime
-from PyQt6.QtGui import QPixmap, QPalette, QBrush
+from PyQt6.QtCharts import QChart, QChartView, QPieSeries
+from PyQt6.QtCore import Qt, QTime, QTimer
+from PyQt6.QtGui import QColor, QPainter, QPixmap, QPalette, QBrush
 from PyQt6.QtWidgets import QWidget, QPushButton, QStackedWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, \
     QFormLayout, QComboBox, QTimeEdit, QTableWidget, QHeaderView, QAbstractItemView, QLCDNumber, QFileDialog, \
     QTableWidgetItem, QColorDialog
@@ -13,6 +9,7 @@ from PyQt6.QtWidgets import QWidget, QPushButton, QStackedWidget, QVBoxLayout, Q
 from PopUpMessages import pop_up_message
 from SystemFunctions import get_from_json, resource_path, apps_list, update_json, delete_from_json, reset_json, \
     save_stats_to_file, format_time
+
 
 # Шрифт - кнопки
 font_button = QtGui.QFont()
