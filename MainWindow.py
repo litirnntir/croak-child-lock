@@ -1,16 +1,17 @@
+import time
+
 import telebot
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import QTimer
+from PyQt6.QtGui import QBrush, QPalette, QPixmap, QColor
+from PyQt6.QtWidgets import QMainWindow, QInputDialog, QLineEdit
 
 from CodeWindow import CodeWindow
 from PopUpMessages import pop_up_message
 from SettingsWindow import SettingsWindow
-from SystemFunctions import update_json, close_app, send_notification, get_open_apps, reset_json, save_stats_to_file
-import time
+from SystemFunctions import update_json, close_app, send_notification, get_open_apps, reset_json, save_stats_to_file, \
+    get_from_json, resource_path, get_active_app_name
 
-from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QBrush, QPalette, QPixmap, QColor, QIcon
-from PyQt6.QtWidgets import QMainWindow, QInputDialog, QLineEdit, QSystemTrayIcon, QMenu
-from SystemFunctions import get_from_json, resource_path, get_active_app_name
 
 bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
 no_blocked_list = {"python", "Croak - Child Lock", "Finder", "Croak", "Python", "croak"}
@@ -255,7 +256,6 @@ class MainWindow(QMainWindow):
             if self.settings_window:
                 self.settings_window.close()
             close_app("Croak")
-            close_app("Python")
             event.accept()
         else:
             event.ignore()
