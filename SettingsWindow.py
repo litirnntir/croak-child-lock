@@ -10,7 +10,6 @@ from PopUpMessages import pop_up_message
 from SystemFunctions import get_from_json, resource_path, apps_list, update_json, delete_from_json, reset_json, \
     save_stats_to_file, format_time
 
-
 # Шрифт - кнопки
 font_button = QtGui.QFont()
 font_button.setFamily("Oswald")
@@ -60,6 +59,12 @@ class SettingsWindow(QWidget):
         self.time_spinbox = QTimeEdit()
         self.time_format = "hh:mm"
         self.select_button = QPushButton("Выбрать", self.page1)
+
+        self.time_after_reset = QLabel("Установить время при сбросе и открытии:", self.page1)
+        self.time_spinbox_after_reset = QTimeEdit()
+        self.time_format = "hh:mm"
+        self.select_button_after_reset = QPushButton("Выбрать", self.page1)
+
         self.password_label = QLabel("Сменить пароль", self.page1)
         self.old_password_edit = QLineEdit(self.page1)
         self.new_password_edit = QLineEdit(self.page1)
@@ -163,6 +168,7 @@ class SettingsWindow(QWidget):
 
         # 1 страница
 
+        self.select_button_after_reset.clicked.connect(self.change_time_after_reset)
         self.select_button.clicked.connect(self.change_time_limit)
         self.change_password_button.clicked.connect(self.change_password)
         self.directory_button.clicked.connect(self.change_directory)
@@ -242,42 +248,55 @@ class SettingsWindow(QWidget):
         self.vbox.addWidget(self.stackedWidget)
 
     def ui_page1(self):
-        self.time_label.setFont(font_h1)
+        self.time_label.setFont(font_h2)
         self.time_label.setStyleSheet("color: rgb(255, 255, 255);")
 
         self.time_spinbox.setDisplayFormat("hh:mm")
         self.time_spinbox.setTime(QTime(0, 0))
 
-        self.select_button.setFont(font_button)
+        self.select_button.setFont(font_small_button)
         self.select_button.setStyleSheet(
+            "border-radius: 10px;color: rgb(255, 255, 255);background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:1.33, fx:0.5, fy:0.5, stop:0 rgba(26, 95, 146, 255), stop:1 rgba(255, 255, 255, 0));")
+
+        self.time_after_reset.setFont(font_h2)
+        self.time_after_reset.setStyleSheet("color: rgb(255, 255, 255);")
+
+        self.time_spinbox_after_reset.setDisplayFormat("hh:mm")
+        self.time_spinbox_after_reset.setTime(QTime(0, 0))
+
+        self.select_button_after_reset.setFont(font_small_button)
+        self.select_button_after_reset.setStyleSheet(
             "border-radius: 10px;color: rgb(255, 255, 255);background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:1.33, fx:0.5, fy:0.5, stop:0 rgba(26, 95, 146, 255), stop:1 rgba(255, 255, 255, 0));")
 
         self.total_time = 0
 
         self.password_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.password_label.setFont(font_h1)
+        self.password_label.setFont(font_h2)
         self.password_label.setStyleSheet("color: rgb(255, 255, 255);")
 
         self.old_password_edit.setEchoMode(QLineEdit.EchoMode.Password)
 
         self.new_password_edit.setEchoMode(QLineEdit.EchoMode.Password)
 
-        self.change_password_button.setFont(font_button)
+        self.change_password_button.setFont(font_small_button)
         self.change_password_button.setStyleSheet(
             "border-radius: 10px;color: rgb(255, 255, 255);background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:1.33, fx:0.5, fy:0.5, stop:0 rgba(26, 95, 146, 255), stop:1 rgba(255, 255, 255, 0));")
 
         self.directory_label.setWordWrap(True)
 
-        self.directory_label.setFont(font_h1)
+        self.directory_label.setFont(font_h2)
         self.directory_label.setStyleSheet("color: rgb(255, 255, 255);")
 
-        self.directory_button.setFont(font_button)
+        self.directory_button.setFont(font_small_button)
         self.directory_button.setStyleSheet(
             "border-radius: 10px;color: rgb(255, 255, 255);background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:1.33, fx:0.5, fy:0.5, stop:0 rgba(26, 95, 146, 255), stop:1 rgba(255, 255, 255, 0));")
 
         self.page1_layout.addWidget(self.time_label)
         self.page1_layout.addWidget(self.time_spinbox)
         self.page1_layout.addWidget(self.select_button)
+        self.page1_layout.addWidget(self.time_after_reset)
+        self.page1_layout.addWidget(self.time_spinbox_after_reset)
+        self.page1_layout.addWidget(self.select_button_after_reset)
         self.page1_layout.addWidget(self.password_label)
         self.page1_layout.addStretch()
         self.form_layout.setContentsMargins(0, 0, 20, 20)
@@ -478,6 +497,27 @@ class SettingsWindow(QWidget):
         self.stackedWidget.addWidget(self.page5)
 
     # Страница 1
+
+    def change_time_after_reset(self):
+        """Выбирает новое время из спинбокса и обновляет настройки
+
+        Атрибуты:
+            new_time: строка с новым временем в формате "hh:mm"
+            h: часы в новом времени
+            m: минуты в новом времени
+            self.total_time: общее время в секундах
+        """
+        time_limit = self.time_spinbox_after_reset.time().toString("hh:mm")
+        h, m = time_limit.split(':')
+        new_time = int(h) * 3600 + int(m) * 60  # секунд
+        if new_time > 0:
+            update_json(resource_path("jsons/settings.json"), "total_time_after_reset", new_time)
+            pop_up_message(text=f"Лимит времени при запуске изменен на: {time_limit}",
+                           icon_path=resource_path("images/success2.png"),
+                           title="Успешно")
+        else:
+            pop_up_message(text=f"Лимит не может быть меньше минуты", icon_path=resource_path("images/error3.png"),
+                           title="Ошибка")
 
     def change_time_limit(self) -> None:
         """Выбирает новое время из спинбокса и обновляет настройки
@@ -716,4 +756,3 @@ class SettingsWindow(QWidget):
         update_json(resource_path("jsons/settings.json"), "TOKEN", token)
         self.main_window.update_from_json("TOKEN")
         pop_up_message("Токен записан", title="Успешно", icon_path=resource_path("images/success2.png"))
-

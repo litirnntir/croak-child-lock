@@ -6,12 +6,12 @@ from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QBrush, QPalette, QPixmap, QColor
 from PyQt6.QtWidgets import QMainWindow, QInputDialog, QLineEdit
 
+import SystemFunctions
 from CodeWindow import CodeWindow
 from PopUpMessages import pop_up_message
 from SettingsWindow import SettingsWindow
 from SystemFunctions import update_json, close_app, send_notification, get_open_apps, reset_json, save_stats_to_file, \
     get_from_json, resource_path, get_active_app_name
-
 
 bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
 no_blocked_list = {"python", "Croak - Child Lock", "Finder", "Croak", "Python", "croak"}
@@ -54,7 +54,7 @@ class MainWindow(QMainWindow):
         self.stats_apps = stats_apps
         self.timer = QTimer()
         # Из настроек
-        self.total_time = settings['total_time']
+        self.total_time = settings['total_time_after_reset']
         self.token = settings["TOKEN"]
         self.password = settings['password']
         self.chat_id = settings['chat_id']
@@ -339,7 +339,8 @@ class MainWindow(QMainWindow):
                 self.send_stats_file_to_telegram()
                 # TODO: выбор лимита после сброса
                 update_json(resource_path("jsons/settings.json"), "total_time",
-                            12 * 60 * 60)  # обновляем на 12 часов в нужное время
+                            get_from_json(resource_path("jsons/settings.json"))[
+                                "total_time_after_reset"] * 60 * 60)  # обновляем время в нужное время
                 reset_json(resource_path("jsons/stats_apps.json"))
             # Меняем активное приложение
             new_current_app = get_active_app_name()

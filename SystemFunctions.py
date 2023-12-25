@@ -10,35 +10,6 @@ import osascript
 from cryptography.fernet import Fernet
 
 
-def time_to_seconds(time_str: str) -> int:
-    """
-    Функция, которая принимает дату строкой в формате hh:mm:ss,
-    проверяет, что время не превышает 24 часа и возвращает время
-    целым числом в секундах.
-
-    Аргументы:
-    time_str: строка, содержащая время в формате hh:mm:ss
-
-    Возвращает:
-    целое число, равное количеству секунд, соответствующих времени,
-    или None, если формат или значение времени неверны
-    """
-    # разбиваем строку по двоеточиям
-    time_parts = time_str.split(":")
-    # проверяем, что у нас три части: часы, минуты и секунды
-    if len(time_parts) != 3:
-        return None
-    # преобразуем каждую часть в целое число
-    hours, minutes, seconds = map(int, time_parts)
-    # проверяем, что время не превышает 24 часа
-    if hours > 24 or minutes > 59 or seconds > 59:
-        return None
-    # переводим время в секунды
-    total_seconds = hours * 3600 + minutes * 60 + seconds
-    # возвращаем результат
-    return total_seconds
-
-
 def format_time(seconds: int) -> str:
     """Форматирует время в секундах в виде ЧЧ:ММ:СС.
 

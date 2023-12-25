@@ -13,12 +13,12 @@ try:
 except:
     pass
 
-
 commands = [
     telebot.types.BotCommand(command="/add_code", description="Создать код"),
     telebot.types.BotCommand(command="/reset", description="Сбросить статистику"),
     telebot.types.BotCommand(command="/id", description="Получить id"),
-    telebot.types.BotCommand(command="/stats", description="Получить статистику")
+    telebot.types.BotCommand(command="/stats", description="Получить статистику"),
+    telebot.types.BotCommand(command="/total_time", description="Изменить общее время")
 ]
 
 try:
@@ -34,7 +34,6 @@ def app_exists(app):
 
 def add_code(code, app, time):
     update_json(resource_path("jsons/codes.json"), code, {"app": app, "time": time})
-    print(get_from_json(resource_path("jsons/codes.json")))
 
 
 @bot.message_handler(commands=["add_code"])
