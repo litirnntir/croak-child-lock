@@ -293,6 +293,11 @@ class MainWindow(QMainWindow):
 
     def update_from_json(self, param=""):
         """Обновляет настройки из файла jsons/settings.json"""
+        self.json_sum_settings = get_from_json_without_encrypt(resource_path("jsons/settings.json"))
+        self.json_sum_blocked_apps = get_from_json_without_encrypt(resource_path("jsons/blocked_apps.json"))
+        self.json_sum_blocked_apps_for_percents = get_from_json_without_encrypt(
+            resource_path("jsons/blocked_apps_for_percents.json"))
+        self.json_sum_codes = get_from_json_without_encrypt(resource_path("jsons/codes.json"))
         data = get_from_json(resource_path("jsons/settings.json"))
         if param == "password": self.password = data["password"]
         if param == "total_time" or param == "total_time_for_percents":
@@ -309,11 +314,6 @@ class MainWindow(QMainWindow):
                 resource_path("jsons/blocked_apps_for_percents.json"))  # для прогресс бара
         if param == "total_time_after_reset": self.total_time_after_reset = data["total_time_after_reset"]
         if param == "chat_id": self.chat_id = data["chat_id"]
-        self.json_sum_settings = get_from_json_without_encrypt(resource_path("jsons/settings.json"))
-        self.json_sum_blocked_apps = get_from_json_without_encrypt(resource_path("jsons/blocked_apps.json"))
-        self.json_sum_blocked_apps_for_percents = get_from_json_without_encrypt(
-            resource_path("jsons/blocked_apps_for_percents.json"))
-        self.json_sum_codes = get_from_json_without_encrypt(resource_path("jsons/codes.json"))
 
     def send_stats_file_to_telegram(self) -> None:
         """Отправляет файл в телеграм по chat_id
@@ -362,7 +362,8 @@ class MainWindow(QMainWindow):
             self.send_to_telegram("Json c кодами Взломан! Принята попытка взлома файла! Все коды были сброшены")
             reset_json(resource_path("jsons/codes.json"))
         if self.json_sum_blocked_apps != get_from_json_without_encrypt(resource_path("jsons/blocked_apps.json")):
-            self.send_to_telegram("Json c лимитами приложений Взломан! Принята попытка взлома файла! Все коды были сброшены")
+            self.send_to_telegram(
+                "Json c лимитами приложений Взломан! Принята попытка взлома файла! Все коды были сброшены")
             reset_json(resource_path("jsons/blocked_apps.json"))
             reset_json(resource_path("jsons/blocked_apps_for_percents.json"))
             update_json(resource_path("jsons/settings.json"), "total_time", 0)

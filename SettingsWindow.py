@@ -561,9 +561,9 @@ class SettingsWindow(QWidget):
             if len(new_password) > 3:
                 self.password = new_password
                 update_json(resource_path("jsons/settings.json"), "password", self.password)
+                self.main_window.update_from_json("password")
                 pop_up_message(text="Пароль изменен.", icon_path=resource_path("images/success3.png"),
                                title="Успешно")
-                self.main_window.update_from_json("password")
             else:
                 pop_up_message(text="Длина пароля не может быть меньше 4",
                            icon_path=resource_path("images/error2.png"),
