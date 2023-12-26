@@ -18,7 +18,6 @@ commands = [
     telebot.types.BotCommand(command="/reset", description="Сбросить статистику"),
     telebot.types.BotCommand(command="/id", description="Получить id"),
     telebot.types.BotCommand(command="/stats", description="Получить статистику"),
-    telebot.types.BotCommand(command="/total_time", description="Изменить общее время")
 ]
 
 try:

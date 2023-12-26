@@ -87,6 +87,16 @@ def update_json(filename: str, key: str, value: any) -> None:
         f.write(encrypted_data)
 
 
+def update_json_without_encrypt(filename: str, text_json: str) -> None:
+    """Обновляет значение в JSON-файле
+
+    :param filename: имя JSON-файла для обновления
+    :param text_json: строка, записываемая в файл
+    """
+    with open(filename, "wb") as f:
+        f.write(text_json)
+
+
 def delete_from_json(filename: str, key: str) -> None:
     """Удаляет значение по ключу в JSON-файле и шифрует его с помощью ключа fernet.
 
@@ -110,6 +120,15 @@ def get_from_json(filename: str) -> dict:
     :param filename: имя JSON-файла для чтения
     """
     return json.loads(decrypt_json(filename))
+
+
+def get_from_json_without_encrypt(filename: str) -> str:
+    """Открывает json файл и возвращает данные
+
+    :param filename: имя JSON-файла для чтения
+    """
+    with open(filename, "r") as f:
+        return f.read()
 
 
 def reset_json(filename: str) -> None:

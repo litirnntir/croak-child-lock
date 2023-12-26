@@ -512,6 +512,7 @@ class SettingsWindow(QWidget):
         new_time = int(h) * 3600 + int(m) * 60  # секунд
         if new_time > 0:
             update_json(resource_path("jsons/settings.json"), "total_time_after_reset", new_time)
+            self.main_window.update_from_json("total_time_after_reset")
             pop_up_message(text=f"Лимит времени при запуске изменен на: {time_limit}",
                            icon_path=resource_path("images/success2.png"),
                            title="Успешно")
