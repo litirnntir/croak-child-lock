@@ -601,8 +601,8 @@ class SettingsWindow(QWidget):
         time_limit = int(h) * 3600 + int(m) * 60
         update_json(resource_path("jsons/blocked_apps.json"), blocked_app, time_limit)
         update_json(resource_path("jsons/blocked_apps_for_percents.json"), blocked_app, time_limit)
-        self.update_limits_apps_table()
         self.main_window.update_from_json("blocked_apps")
+        self.update_limits_apps_table()
         pop_up_message(text=f"Лимит для {blocked_app} установлен", icon_path=resource_path('images/success2.png'),
                        title="Успешно")
         self.time.setTime(QTime(0, 0))
@@ -682,6 +682,7 @@ class SettingsWindow(QWidget):
             pop_up_message("Код на общее время добавлен!", title="Успешно",
                            icon_path=resource_path("images/success4.png"))
             update_json(resource_path("jsons/codes.json"), code, {"app": "Общее время", "time": seconds})
+            self.main_window.update_from_json()
             self.page4_total_code.clear()
             self.load_data_to_table()
         else:
@@ -705,6 +706,7 @@ class SettingsWindow(QWidget):
         # Проверяем, что код не пустой
         if code and seconds > 0:
             update_json(resource_path("jsons/codes.json"), code, {"app": app, "time": seconds})
+            self.main_window.update_from_json()
             self.page4_code.clear()
             self.load_data_to_table()
             pop_up_message(f"Код на {app} добавлен!", title="Успешно",
@@ -718,6 +720,7 @@ class SettingsWindow(QWidget):
         if row != -1:
             code = self.page4_table.item(row, 0).text()
             delete_from_json(resource_path("jsons/codes.json"), code)
+            self.main_window.update_from_json()
             self.load_data_to_table()
         else:
             pop_up_message("Нет выделенной строки", title="Ошибка", icon_path=resource_path("images/error4.png"))

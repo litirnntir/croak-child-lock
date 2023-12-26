@@ -1,3 +1,4 @@
+import os
 import time
 
 import telebot
@@ -98,7 +99,7 @@ class MainWindow(QMainWindow):
         self.setFixedSize(840, 580)
 
         # Фоновое изображение
-        background_image = "/Users/aleksandragorbuncova/PycharmProjects/croak-child-lock/images/background.png"
+        background_image = resource_path("images/background.png")
         pix = QPixmap(background_image)
         pal = QPalette()
         pal.setBrush(self.backgroundRole(), QBrush(pix))
@@ -406,6 +407,7 @@ class MainWindow(QMainWindow):
                     if self.active_app in self.blocked_apps:
                         update_json(resource_path("jsons/blocked_apps.json"), self.active_app, self.time_left_block_app)
                         self.blocked_apps = get_from_json(resource_path("jsons/blocked_apps.json"))
+                        self.update_from_json()
                     # Обновляем текущее приложение
                     self.active_app = new_current_app
                     # Если текущее зблокировано, проверяем, осталось ли время. Если не осталось - закрываем
