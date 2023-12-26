@@ -608,7 +608,7 @@ class SettingsWindow(QWidget):
         self.time.setTime(QTime(0, 0))
 
     def update_limits_apps_table(self):
-        data = get_from_json(resource_path("jsons/blocked_apps.json"))
+        data = get_from_json(resource_path("jsons/blocked_apps_for_percents.json"))
         self.table_apps_limits.setRowCount(len(data))
         row = 0
         for blocked_app, time_limit in data.items():

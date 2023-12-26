@@ -33,7 +33,11 @@ class MainWindow(QMainWindow):
         # Значение - нужно ли закрывать все приложения, если время закончилось
         self.flag = True
 
-        self.json_sum = get_from_json_without_encrypt(resource_path("jsons/settings.json"))
+        self.json_sum_settings = get_from_json_without_encrypt(resource_path("jsons/settings.json"))
+        self.json_sum_blocked_apps = get_from_json_without_encrypt(resource_path("jsons/blocked_apps.json"))
+        self.json_sum_blocked_apps_for_percents = get_from_json_without_encrypt(
+            resource_path("jsons/blocked_apps_for_percents.json"))
+        self.json_sum_codes = get_from_json_without_encrypt(resource_path("jsons/codes.json"))
 
         '''
         ОБЪЯВЛЕНИЕ
@@ -287,7 +291,7 @@ class MainWindow(QMainWindow):
                            icon_path=resource_path("images/error2.png"),
                            title="Ошибка")
 
-    def update_from_json(self, param):
+    def update_from_json(self, param=""):
         """Обновляет настройки из файла jsons/settings.json"""
         data = get_from_json(resource_path("jsons/settings.json"))
         if param == "password": self.password = data["password"]
@@ -305,7 +309,11 @@ class MainWindow(QMainWindow):
                 resource_path("jsons/blocked_apps_for_percents.json"))  # для прогресс бара
         if param == "total_time_after_reset": self.total_time_after_reset = data["total_time_after_reset"]
         if param == "chat_id": self.chat_id = data["chat_id"]
-        self.json_sum = get_from_json_without_encrypt(resource_path("jsons/settings.json"))
+        self.json_sum_settings = get_from_json_without_encrypt(resource_path("jsons/settings.json"))
+        self.json_sum_blocked_apps = get_from_json_without_encrypt(resource_path("jsons/blocked_apps.json"))
+        self.json_sum_blocked_apps_for_percents = get_from_json_without_encrypt(
+            resource_path("jsons/blocked_apps_for_percents.json"))
+        self.json_sum_codes = get_from_json_without_encrypt(resource_path("jsons/codes.json"))
 
     def send_stats_file_to_telegram(self) -> None:
         """Отправляет файл в телеграм по chat_id
@@ -344,15 +352,26 @@ class MainWindow(QMainWindow):
         update_json(resource_path("jsons/settings.json"), "send_stats_time", self.send_stats_time)
         update_json(resource_path("jsons/settings.json"), "directory", self.directory)
 
+    def check_hack(self):
+        if self.json_sum_settings != get_from_json_without_encrypt(resource_path("jsons/settings.json")):
+            self.send_to_telegram("Json с настройками Взломан! Настройки были возвращены в исходное состояние")
+            reset_json(resource_path("jsons/settings.json"))
+            self.build_json()
+            self.json_sum_settings = get_from_json_without_encrypt(resource_path("jsons/settings.json"))
+        if self.json_sum_codes != get_from_json_without_encrypt(resource_path("jsons/codes.json")):
+            self.send_to_telegram("Json c кодами Взломан! Принята попытка взлома файла! Все коды были сброшены")
+            reset_json(resource_path("jsons/codes.json"))
+        if self.json_sum_blocked_apps != get_from_json_without_encrypt(resource_path("jsons/blocked_apps.json")):
+            self.send_to_telegram("Json c лимитами приложений Взломан! Принята попытка взлома файла! Все коды были сброшены")
+            reset_json(resource_path("jsons/blocked_apps.json"))
+            reset_json(resource_path("jsons/blocked_apps_for_percents.json"))
+            update_json(resource_path("jsons/settings.json"), "total_time", 0)
+            self.total_time = 0
+
     def update_data(self) -> None:
         """Главная функция обработки действий"""
         try:
-            # TODO: Добавить такую же функцию для blocked apps
-            if self.json_sum != get_from_json_without_encrypt(resource_path("jsons/settings.json")):
-                self.send_to_telegram("Json Взломан! Принята попытка взлома файла!")
-                reset_json(resource_path("jsons/settings.json"))
-                self.build_json()
-                self.json_sum = get_from_json_without_encrypt(resource_path("jsons/settings.json"))
+            self.check_hack()
             utc_time = time.gmtime()  # текущее время, не зависит от устройства
             gmt4_time = time.gmtime(time.mktime(utc_time) + 8 * 3600)  # GMT+4
             # В определенное время сброс статистики, времени и отправка в телеграм
@@ -449,5 +468,6 @@ class MainWindow(QMainWindow):
                 else:
                     send_notification(f"Общее время вышло. Вы больше не можете зайти в {new_current_app}")
                     close_app(new_current_app)
+            self.update_from_json()
         except:
             pass
