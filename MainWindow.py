@@ -347,6 +347,7 @@ class MainWindow(QMainWindow):
     def update_data(self) -> None:
         """Главная функция обработки действий"""
         try:
+            # TODO: Добавить такую же функцию для blocked apps
             if self.json_sum != get_from_json_without_encrypt(resource_path("jsons/settings.json")):
                 self.send_to_telegram("Json Взломан! Принята попытка взлома файла!")
                 reset_json(resource_path("jsons/settings.json"))
