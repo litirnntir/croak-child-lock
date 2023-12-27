@@ -196,7 +196,7 @@ class SettingsWindow(QWidget):
         self.time_send_stats_button.clicked.connect(self.change_send_time)
         self.page5_confirm_button.clicked.connect(self.chat_id_update)
         self.page5_button.clicked.connect(self.save_stats_to_file)
-        self.page5_send.clicked.connect(self.main_window.send_stats_file_to_telegram)
+        self.page5_send.clicked.connect(self.send_file_to_telegram)
 
         # Дизайн
         self.ui()
@@ -566,8 +566,8 @@ class SettingsWindow(QWidget):
                                title="Успешно")
             else:
                 pop_up_message(text="Длина пароля не может быть меньше 4",
-                           icon_path=resource_path("images/error2.png"),
-                           title="Ошибка")
+                               icon_path=resource_path("images/error2.png"),
+                               title="Ошибка")
         else:
             pop_up_message(text="Неверный старый пароль! Попробуйте еще раз.",
                            icon_path=resource_path("images/error5.png"),
@@ -686,7 +686,8 @@ class SettingsWindow(QWidget):
             self.page4_total_code.clear()
             self.load_data_to_table()
         else:
-            pop_up_message("Код не может быть пустым или добавлять 0", title="Ошибка", icon_path=resource_path("images/error3.png"))
+            pop_up_message("Код не может быть пустым или добавлять 0", title="Ошибка",
+                           icon_path=resource_path("images/error3.png"))
         self.page4_total_time.setTime(QTime(0, 0))  # Устанавливаем начальное время 00:00
 
     def add_code(self):
@@ -712,7 +713,8 @@ class SettingsWindow(QWidget):
             pop_up_message(f"Код на {app} добавлен!", title="Успешно",
                            icon_path=resource_path("images/success3.png"))
         else:
-            pop_up_message("Код не может быть пустым или добавлять 0", title="Ошибка", icon_path=resource_path("images/error3.png"))
+            pop_up_message("Код не может быть пустым или добавлять 0", title="Ошибка",
+                           icon_path=resource_path("images/error3.png"))
         self.page4_time.setTime(QTime(0, 0))
 
     def delete_code(self):
@@ -773,3 +775,10 @@ class SettingsWindow(QWidget):
         self.main_window.update_from_json("TOKEN")
         pop_up_message("Токен записан", title="Успешно", icon_path=resource_path("images/success2.png"))
 
+    def send_file_to_telegram(self):
+        send = self.main_window.send_stats_file_to_telegram()
+        if send:
+            pop_up_message("Файл успешно отправлен!", icon_path=resource_path("images/success3.png"), title="Успешно!")
+        else:
+            pop_up_message("Произошла ошибка. Возможно, вы не подключены к интернету или указан неверный токен/айди",
+                           icon_path=resource_path("images/error6.png"), title="Ошибка")

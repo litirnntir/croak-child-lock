@@ -316,7 +316,7 @@ class MainWindow(QMainWindow):
         if param == "total_time_after_reset": self.total_time_after_reset = data["total_time_after_reset"]
         if param == "chat_id": self.chat_id = data["chat_id"]
 
-    def send_stats_file_to_telegram(self) -> None:
+    def send_stats_file_to_telegram(self) -> bool:
         """Отправляет файл в телеграм по chat_id
 
         Аргументы:
@@ -331,10 +331,9 @@ class MainWindow(QMainWindow):
             bot.send_document(self.chat_id, file)
             # Закрываем файл
             file.close()
-            pop_up_message("Файл успешно отправлен!", icon_path=resource_path("images/success3.png"), title="Успешно!")
+            return True
         except:
-            pop_up_message("Произошла ошибка. Возможно, вы не подключены к интернету или указан неверный токен/айди",
-                           icon_path=resource_path("images/error6.png"), title="Ошибка")
+            return False
 
     def send_to_telegram(self, text="Текст") -> None:
         """Отправляет текстовое сообщение в телеграм по chat_id

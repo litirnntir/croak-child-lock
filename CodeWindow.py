@@ -30,14 +30,14 @@ class CodeWindow(QtWidgets.QDialog):
                     "time"]
                 update_json(resource_path("jsons/blocked_apps.json"), codes[code]["app"], time_limit)
                 update_json(resource_path("jsons/blocked_apps_for_percents.json"), codes[code]["app"], time_limit)
-                self.main_window.update_from_json("blocked_apps")
                 delete_from_json(resource_path("jsons/codes.json"), code)
+                self.main_window.update_from_json("blocked_apps")
                 pop_up_message(f"Код |{code}| применен", resource_path("images/success6.png"), "Успешно")
             else:
                 if codes[code]["app"] == "Общее время":
                     total_time = get_from_json(resource_path("jsons/settings.json"))["total_time"]
                     time_limit = total_time + codes[code]["time"]
-                    update_json(resource_path("jsons/settings.json"), "total_time", total_time)
+                    update_json(resource_path("jsons/settings.json"), "total_time", time_limit)
                     self.main_window.update_from_json("total_time")
                 else:
                     pop_up_message(f"Приложение {codes[code]['app']} не заблокировано",

@@ -28,23 +28,6 @@ def resource_path(relative_path: str) -> str:
     settings_file = os.path.join(app_dir, relative_path)
     return settings_file
 
-# def resource_path(relative_path: str) -> str:
-#     """Получает абсолютный путь к ресурсам.
-#
-#     Аргументы:
-#         relative_path: относительный путь к ресурсу, строка.
-#
-#     Возвращает:
-#         Абсолютный путь к ресурсу, строка.
-#     """
-#     # Получаем абсолютный путь к ресурсам.
-#     try:
-#         # PyInstaller создает временную папку в _MEIPASS
-#         base_path = sys._MEIPASS
-#     except Exception:
-#         base_path = os.path.abspath(".")
-#     return os.path.join(base_path, relative_path)
-
 
 with open(resource_path("key.key"), "rb") as file:
     key = file.read()
