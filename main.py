@@ -6,12 +6,16 @@ import telebot
 from PyQt6.QtWidgets import QApplication
 
 from MainWindow import MainWindow
-from SystemFunctions import get_from_json, resource_path, apps_list, update_json, save_stats_to_file
+from SystemFunctions import get_from_json, resource_path, apps_list, update_json, save_stats_to_file, \
+    get_from_json_without_encrypt
 
 try:
     bot = telebot.TeleBot(get_from_json(resource_path("jsons/settings.json"))["TOKEN"])
 except:
     pass
+
+app = QApplication(sys.argv)
+window = MainWindow()
 
 commands = [
     telebot.types.BotCommand(command="/add_code", description="Создать код"),
@@ -32,7 +36,7 @@ def app_exists(app):
 
 
 def add_code(code, app, time):
-    update_json(resource_path("jsons/codes.json"), code, {"app": app, "time": time})
+    update_json(resource_path("jsons/codes.json"), code, {"app": app, "time": int(time)})
 
 
 @bot.message_handler(commands=["add_code"])
@@ -101,8 +105,6 @@ def run_bot():
 
 
 def run_window():
-    app = QApplication(sys.argv)
-    window = MainWindow()
     window.show()
     sys.exit(app.exec())
 

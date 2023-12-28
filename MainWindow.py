@@ -43,6 +43,7 @@ class MainWindow(QMainWindow):
         '''
         ОБЪЯВЛЕНИЕ
         '''
+
         # элементы интерфейса
         self.text_active_app = QtWidgets.QLabel(parent=self.centralwidget)
         self.button_settings = QtWidgets.QPushButton(parent=self.centralwidget)
@@ -358,9 +359,6 @@ class MainWindow(QMainWindow):
             reset_json(resource_path("jsons/settings.json"))
             self.build_json()
             self.json_sum_settings = get_from_json_without_encrypt(resource_path("jsons/settings.json"))
-        if self.json_sum_codes != get_from_json_without_encrypt(resource_path("jsons/codes.json")):
-            self.send_to_telegram("Json c кодами Взломан! Принята попытка взлома файла! Все коды были сброшены")
-            reset_json(resource_path("jsons/codes.json"))
         if self.json_sum_blocked_apps != get_from_json_without_encrypt(resource_path("jsons/blocked_apps.json")):
             self.send_to_telegram(
                 "Json c лимитами приложений Взломан! Принята попытка взлома файла! Все коды были сброшены")

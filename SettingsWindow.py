@@ -38,6 +38,8 @@ class SettingsWindow(QWidget):
         '''
         ОБЪЯВЛЕНИЕ
         '''
+
+
         # элементы интерфейса
 
         self.button1 = QPushButton('Настройки')
@@ -735,7 +737,7 @@ class SettingsWindow(QWidget):
             time1 = data[code]["time"]
             code_item = QTableWidgetItem(code)
             app_item = QTableWidgetItem(app)
-            time_item = QTableWidgetItem(format_time(time1))
+            time_item = QTableWidgetItem(format_time(int(time1)))
             self.page4_table.setItem(i, 0, code_item)
             self.page4_table.setItem(i, 1, app_item)
             self.page4_table.setItem(i, 2, time_item)
