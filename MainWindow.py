@@ -43,7 +43,6 @@ class MainWindow(QMainWindow):
         '''
         ОБЪЯВЛЕНИЕ
         '''
-
         # элементы интерфейса
         self.text_active_app = QtWidgets.QLabel(parent=self.centralwidget)
         self.button_settings = QtWidgets.QPushButton(parent=self.centralwidget)
